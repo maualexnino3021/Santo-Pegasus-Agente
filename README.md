@@ -9,22 +9,31 @@ microservicios.
 
 Proyecto desarrollado para el **Challenge Alura Agente**, con despliegue en **Render**.
 
-🔗 **Demo desplegada:** `<COMPLETAR_CON_TU_URL_DE_RENDER>`
-📸 **Captura del despliegue:** ver `docs/screenshot-deploy.png` (agregar tras desplegar)
-
+🔗 **Demo desplegada:** `<https://santo-pegasus-agente.onrender.com/>`
+📸 **Captura del despliegue:** ver docs/screenshot-deploy.png
 ---
 
 ## Índice
 
-1. [Descripción general](#descripción-general)
-2. [Arquitectura de la solución](#arquitectura-de-la-solución)
-3. [Tecnologías y herramientas](#tecnologías-y-herramientas)
-4. [Estructura del repositorio](#estructura-del-repositorio)
-5. [Cómo ejecutar el proyecto localmente](#cómo-ejecutar-el-proyecto-localmente)
-6. [Cómo desplegar en Render](#cómo-desplegar-en-render)
-7. [Regenerar la base de conocimiento (OCR/PDF)](#regenerar-la-base-de-conocimiento-ocrpdf)
-8. [Ejemplos de preguntas y respuestas](#ejemplos-de-preguntas-y-respuestas)
-9. [Pruebas](#pruebas)
+- [Agente Inteligente — Santo Pegasus Soluciones](#agente-inteligente--santo-pegasus-soluciones)
+  - [📸 **Captura del despliegue:** ver docs/screenshot-deploy.png](#-captura-del-despliegue-ver-docsscreenshot-deploypng)
+  - [Índice](#índice)
+  - [Descripción general](#descripción-general)
+    - [Documentos que componen la base de conocimiento](#documentos-que-componen-la-base-de-conocimiento)
+  - [Arquitectura de la solución](#arquitectura-de-la-solución)
+  - [Tecnologías y herramientas](#tecnologías-y-herramientas)
+    - [Elegir proveedor de LLM: Anthropic (Claude) u OpenAI (GPT)](#elegir-proveedor-de-llm-anthropic-claude-u-openai-gpt)
+  - [Estructura del repositorio](#estructura-del-repositorio)
+  - [Cómo ejecutar el proyecto localmente](#cómo-ejecutar-el-proyecto-localmente)
+    - [Requisitos previos](#requisitos-previos)
+    - [Pasos](#pasos)
+  - [Cómo desplegar en Render](#cómo-desplegar-en-render)
+    - [Opción A — Usando el Blueprint (`render.yaml`), recomendada](#opción-a--usando-el-blueprint-renderyaml-recomendada)
+    - [Opción B — Configuración manual desde el Dashboard](#opción-b--configuración-manual-desde-el-dashboard)
+  - [Regenerar la base de conocimiento (OCR/PDF)](#regenerar-la-base-de-conocimiento-ocrpdf)
+  - [Ejemplos de preguntas y respuestas](#ejemplos-de-preguntas-y-respuestas)
+  - [Pruebas](#pruebas)
+  - [Licencia y uso](#licencia-y-uso)
 
 ---
 
