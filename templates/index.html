@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santo Pegasus Soluciones · Agente Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SP</span>
+        <div class="brand-text">
+          <span class="brand-name">Santo Pegasus Soluciones</span>
+          <span class="brand-sub">Agente Inteligente · Base de Conocimiento Interna</span>
+        </div>
+      </div>
+      <div class="status-pill" id="global-status">
+        <span class="dot dot-pending"></span>
+        <span id="global-status-text">Conectando…</span>
+      </div>
+    </header>
+
+    <section class="kb-strip" id="kb-strip" aria-label="Documentos indexados">
+      <!-- Se completa dinámicamente vía chat.js con las fuentes citadas -->
+    </section>
+
+    <main class="chat-area" id="chat-area">
+      <div class="messages" id="messages">
+        <div class="msg msg-agent">
+          <div class="msg-avatar">SP</div>
+          <div class="msg-bubble">
+            <p>
+              Hola, soy el agente interno de <strong>Santo Pegasus Soluciones</strong>.
+              Puedo responder preguntas sobre nuestras guías de ingeniería
+              (Back-end y Front-end), el manual de onboarding, el protocolo de
+              incidentes/post-mortems y la arquitectura de microservicios de
+              <strong>Agendio</strong>.
+            </p>
+            <p class="msg-hint">Prueba, por ejemplo: «¿Cuál es el SLA de respuesta para un incidente SEV-1?»</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <form class="composer" id="composer">
+      <input
+        type="text"
+        id="question-input"
+        placeholder="Escribe tu pregunta sobre los procesos de Santo Pegasus…"
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="send-btn">
+        <span>Enviar</span>
+      </button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</body>
+</html>

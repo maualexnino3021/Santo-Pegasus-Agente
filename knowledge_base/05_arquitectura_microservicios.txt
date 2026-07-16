@@ -1,0 +1,1784 @@
+Arquitectura de Microservicios y Mapa de Dominios
+
+Santo Pegasus Soluciones
+
+Documento: Arquitectura de Microservicios y Mapa de Dominios
+Version: 1.0.0
+
+Fecha de Emision: Junio 2026
+
+Departamento: Ingenieria de Software / Chapter de Back-end
+Clasificacion: Interno — Uso Técnico Restringido
+
+TABLA DE CONTENIDOS
+
+1. Introduccion y Vision General de la Arquitectura
+2. Diagrama Textual de la Arquitectura General
+
+3. Catalogo Completo de Microservicios
+
+4. Mapa de Dependencias entre Servicios
+
+5. Patrones de Comunicacién
+
+6. Estrategia de Bases de Datos
+
+7. API Gateway
+
+8. Infraestructura en AWS
+
+9. Observabilidad Distribuida
+
+10. Estrategia de Versionado de APIs
+
+Nl. Seguridad entre Servicios
+
+12. Mapa de Squads y Ownership
+
+13. Roadmap Técnico
+
+14. Architecture Decision Records (ADRs)
+
+15. Disposiciones Finales y Proceso de Actualizacién
+
+SECCION 1— INTRODUCCION Y VISION GENERAL DE LA
+ARQUITECTURA
+
+1.1Propésito del Documento
+
+Este documento constituye el mapa arquitecténico oficial de Santo Pegasus Soluciones. Su
+propésito es servir como referencia canénica para todos los ingenieros, Tech Leads, Product
+Managers y stakeholders técnicos que necesiten comprender como estan organizados,
+interconectados y desplegados los sistemas que componen el portafolio de productos de la
+empresa.
+
+Este artefacto debe leerse en conjunto con la Guia Ofici: ia Back-end (v2.4.0), que
+establece los estandares de codificacién, patrones de disefio y practicas de seguridad
+obligatorias para todos los set s aqui descritos. Ambos documentos forman el nucleo de la
+base de conocimiento técnico de Santo Pegasus y son fuentes de verdad para la toma de
+decisiones arquitectonicas.
+
+1.2 Contexto Empresarial
+
+Santo Pegasus Soluciones es una empresa de tecnologia especializada en el desarrollo de
+productos digitales para el sector de salud y servicios profesionales. El producto principal de
+la compafiia es Agendio, una plataforma SaaS de agendamiento de consultas médicas que
+conecta pacientes, médicos y clinicas a través de una experiencia digital integrada.
+
+La plataforma Agendio opera en modelo multi-tenant, atendiendo a redes de clinicas,
+hospitales de pequefio y mediano porte, y consultorios independientes en todo Brasil. La
+criticidad del dominio de salud exige que la arquitectura priorice disponibilidad, seguridad de
+datos sensibles, conformidad con la LGPD (Lei Geral de Protecao de Dados) y auditabilidad
+completa de todas las operacées.
+
+1.3 Por Qué Microservicios
+
+La adopcion de una arquitectura de microservicios en Santo Pegasus no fue una decisién
+tomada de forma prematura. La empresa comenz6 con un monolito funcional, y la migracién
+para microservicios fue guiada por necesidades reales e inmediatas de escala, autonomia de
+equipos y velocidad de entrega, en consonancia con los principios fundamentales
+documentados en la Guia de Ingenieria Back-end.
+
+Las motivaciones concretas que justificaron la transicién son:
+
+« Escalabilidad Independiente: El servicio de agendamiento (‘agendio-scheduling-service’)
+presenta picos de carga en horarios matutinos (entre 07hOO y O9h00) que no impactan otros
+dominios. En arquitectura monolitica, escalar ese médulo implicaria escalar toda la aplicacion,
+desperdiciando recursos computacionales y aumentando costos operativos.
+
++ Autonomia de Squads: Con equipos organizados por dominio de negocio, la arquitectura
+de microservicios permite que cada squad tenga ownership completo de su ciclo de vida de
+software — desde el cédigo hasta el deploy en produccién — sin coordinacién burocratica
+con otros equipos para releases.
+
++ Resiliencia e lsolamento de Fallas: Un defecto critico en el ‘payment-service’ no debe
+causar Ii ponibilidad del agendamiento de consultas. El aislamiento de procesos
+garantiza que las fallas se contengan dentro del dominio afectado.
+
++ Flexibilidad Tecnoldgica: Diferentes dominios tienen diferentes requisitos técnicos. El
+“medical-records-service’ se beneficia de MongoDB para el almacenamiento de
+documentos clinicos flexibles y semi-estructurados, mientras que el ‘auth-service’ requiere
+la consistencia fuerte de PostgreSQL para la gestion de credenciales.
+
++ Velocidad de Entrega: La independencia de deploys permite que multiples squads liberen
+nuevas funcionalidades en el mismo dia sin coordinacién de releases ni ventanas de
+mantenimiento compartidas.
+
+1.4 Principios Arquitectonicos que Guian las Decisiones
+
+Todas las decisiones arquitectonicas en Santo Pegasus estan ancladas en los siguientes
+principios, que deben ser internalizados por todo el equipo de ingenieria:
+
+# Principio Descripcién
+
+P-O1 High Cohesion, Low Coupling Cada microservicio debe
+encapsular un dominio de negocio
+bien definido. Dependencias entre
+servicios deben ser minimizadas y,
+cuando existentes, preferiblemente
+asincronas.
+
+P-02 Database per Service Cada microservicio posee y
+controla exclusivamente su propia
+base de datos. El acceso directo a
+la base de datos de otro servicio
+esta terminantemente prohibido.
+
+P-03 API First Contratos de API
+(OpenAPl/Swagger) son definidos
+antes de la implementaci6n. Esto
+garantiza que los consumidores
+Puedan desarrollar en paralelo
+usando mocks.
+
+P-04 Security by Default, Todas las comunicaciones entre
+servicios son autenticadas. Ningun
+endpoint interno es accesible sin
+validaci6n de identidad. mTLS es
+obligatorio para comunicacién
+interna.
+
+P-05 Observability by Design Logs estructurados, métricas y
+rastreo distribuido no son afadidos
+post-hoc; son parte del scaffolding
+inicial de cada nuevo servicio.
+
+P-06 Fail Fast, Recover Gracefully Los servicios implementan circuit
+breakers, timeouts y politicas de
+retry con backoff exponencial para
+garantizar resiliencia ante fallas de
+dependencias.
+
+P-07
+
+P-08
+
+P-09
+
+P-10
+
+Compliance First
+
+Infrastructure as Code
+
+Evolutionary Architecture
+
+SOLID in Every Service
+
+1.5 Ecosistema Tecnolégico Principal
+
+Decisiones sobre almacenamiento,
+transmisién y procesamiento de
+datos sensibles de salud son
+guiadas por la LGPD y buenas
+practicas de seguridad antes de
+cualquier requisito funcional.
+
+Toda la infraestructura AWS es
+definida como cédigo
+(Terraform/AWS CDK). Ningiin
+recurso de produccién es creado
+manuaimente via Console.
+
+La arquitectura acepta que
+cambiara. Decisiones son tomadas
+con horizontes de tiempo claros y
+revisadas periddicamente en los
+foros de Architecture Review.
+
+Los principios SOLID de orientacién
+a objetos son aplicados tanto a
+nivel de clase como a nivel de
+servicio. Cada microservicio tiene
+una Unica responsabilidad de
+dominio.
+
+El ecosistema tecnolégico de Santo Pegasus esta standardizado para garantizar consistencia
+operacional y reducir la carga cognitiva de los equipos:
+
++ Lenguaje & Runtime: Java 17+ (LTS), con adopcion gradual de Java 21 (Virtual Threads)
+
++ Framework Principal: Spring Boot 3+, Spring Security, Spring Cloud
++ Contenedorizacién: Docker (imagenes inmutables), orquestados en AWS ECS Fargate
+
++ Bases de Datos: PostgreSQL (relacional), MongoDB/AWS DocumentDB (documentos),
+Redis/AWS ElastiCache (caché)
+
++ Mensajeria: AWS SQS (colas y eventos entre dominios)
+
++ Autenticacién: JWT + OAuth 2.0 / OpenID Connect, gestionado por ‘auth-service’
++ Observabilidad: SLF4J + Logback, Spring Boot Actuator, Micrometer, Prometheus,
+
+Datadog
+
++ CI/CD: GitHub Actions + Pipelines con Docker, Flyway/Liquibase para migrations
+
++ Secrets Management: AWS Secrets Manager + Spring Cloud Config
+
+SECCION 2 — DIAGRAMA TEXTUAL DE LA ARQUITECTURA
+
+GENERAL
+
+2.1Visi6n de Alto Nivel
+
+El diagrama a continuacién representa la topologia completa de la arquitectura de
+microservicios de Santo Pegasus, mostrando el flujo de trafico desde los clientes externos
+hasta los servicios internos, bases de datos y sistemas de mensajeria.
+
+CLIENTES EXTERNOS
+[Web App React] [Mobile App iOS/Android] [Clinicas API Partners]
+
+V HTTPS / TLS 1.3
+
+AWS API GATEWAY (Kong / AWS API GW)
+
+» Routing + Rate Limiting + Auth Token Validation
+» SSL Termination *» CORS + Request Logging
+v v v v v
+auth- user- agendio- payment- ai-assistant-
+
+service service scheduling service service
+:8081 18082 -service :8085 :8087
+
+:8083
+v v v v
+[PostgreSQL] [PostgreSQL] [PostgreSQL] [Pinecone DB]
+auth_db users_db payments_db (Vector Store)
+v v v
+agendio- medical- audit-
+notif- records- service
+
+service service 18088
+
+18084 :8086
+
+v
+Vv v [PostgreSQL]
+[AWS SES] [MongoDB / audit_db
+[AWS SNS] DocumentDB]
+medical_records_db
+CAPA DE MENSAJERIA ASINCRONA
+
+AWS SQS QUEUES
+
+appointment-created.fifo -> [agendio-notification-service]
+
+appointment-cancelled.fifo > [agendio-notification-service]
+> [audit-service]
+
+payment-confirmed.fifo -> [agendio-scheduling-service]
+> [audit-service]
+
+user-created.fifo ~ [agendio-notification-service]
+> [audit-service]
+
+audit-events.fifo ~ [audit-service]
+
+INFRAESTRUCTURA COMPARTIDA
+
+AWS AWS AWS Secrets
+ElastiCache CloudWatch Manager
+(Redis) +Datadog + Spring Cloud
+
+Caché Global Observability Config
+
+2.2 Flujo de una Requisicién Tipica (Agendamiento de Consulta)
+
+Cliente (App Mobile)
+
+POST /vi/appointments [Bearer JWT]
+v
+API Gateway
+~ Valida JWT via auth-service (cache Redis, TTL Smin)
+~ Aplica rate limit (100 req/min por tenant)
+~ Routea para agendio-scheduling-service
+v
+agendio-scheduling-service
+~ Valida disponibilidad del médico (consulta propia DB)
+> Verifica perfil del paciente via user-service (REST sincrono)
++ Crea registro de consulta en scheduling_db (PostgreSQL)
+~ Publica evento "appointment-created" en SQS
+~ Retorna 201 Created con payload de la consulta
+v
+[Async] agendio-notification-service consume SQS.
+> Envia email de confirmacién via AWS SES
+~ Envia SMS via AWS SNS
+v
+[Async] audit-service consume SQS
+~ Registra accion en audit_db con Trace ID completo
+
+SECCION 3 — CATALOGO COMPLETO DE MICROSERVICIOS
+
+3.1Resumen del Catalogo
+
+Servicio Puerto Dominio Base de Datos
+
+“auth-service® 8081 Identidad & PostgreSQL
+Seguridad
+
+“user-service” 8082 Usuarios & Perfiles | PostgreSQL
+
+agendio-schedulin | 8083 ‘Agendamiento PostgreSQL
+
+g-service” (Core)
+
+‘agendio-notificatio | 8084 Notificaciones — (stateless)
+
+n-service’
+
+“payment-service’ | 8085 Pagos & PostgreSQL
+
+Facturacién
+
+“medical-records-s | 8086 Historial Clinico MongoDB
+ervice’
+
+‘Squad Owner
+
+Squad Hermes
+
+‘Squad Hermes
+
+Squad Agendio
+Core
+
+Squad Agendio
+Core
+
+Squad Pagamentos
+
+Squad Clinico
+
+‘ai-assistant-servic | 8087 Asistencia IA (RAG) _ Pinecone (Vector) Squad |A
+e
+
+“audit-service’ 8088 Auditoria & PostgreSQL Squad Governance
+Compliance
+
+3.2 ‘auth-service’ — Autenticacién y Autorizaci6én
+
+Repositorio Git: ‘git@github.com:santopegasus/auth-service.git"
+Squad Owner: Squad Hermes
+
+Tech Lead: Isabella Carvalho
+
+Puerto: 8081
+
+##### Responsabilidad
+
+El ‘auth-service’ es la raiz de confianza del ecosistema de Santo Pegasus. Es responsable de la
+emision, validacién y revocacién de tokens JWT, de la gestion del ciclo de vida de credenciales
+de usuarios, y de la integracion con el flujo OAuth 2.0 / OpenID Connect para clientes de terceros.
+Ningun otro servicio valida credenciales directamente; toda autenticacion pasa obligatoriamente
+por este servicio.
+
+#### Tecnologias
++ Framework: Spring Boot 3.x + Spring Security 6
+IWT (RS256), OAuth 2.0, OpenID Connect (OIDC)
++ Base de Datos: PostgreSQL 15 (‘auth_db’) via AWS RDS
++ Caché de Tokens: AWS ElastiCache (Redis) — TTL configurable por tipo de token
++ Secrets: AWS Secrets Manager para llaves RSA privadas
+#### APIs Expuestas
+
++ Autenticaciér
+
+Método Endpoint Descripcién
+
+“posT’ ‘/vi/auth/login® Autenticacién con email/password,
+retorna JWT + Refresh Token
+
+‘post’ */vi/auth/refresh’ Renovacién de token via Refresh
+Token
+
+‘post’ ‘/vi/auth/logout™ Revocacién de token (blacklist en
+Redis)
+
+‘post’ */vifauth/oauth2/token’ Flujo OAuth 2.0 Client Credentials
+
+“GET */vi/auth/validate* \Validacién de token (usado por API
+Gateway)
+
+“POST” */vi/auth/password/reset Solicitud de reset de contrasefia
+
+‘GET */-well-known /jwks,json’ JWKS endpoint para validacién
+publica de tokens
+
+#### Dependencias con Otros Servicios
++ “user-service’ (REST sincrono): Para validar existencia y status del usuario durante el login
++ ‘audit-service’ (SQS asincrono): Publica eventos de ‘auth.login.success’,
+“auth.login.failure’, ‘auth.token.revoked*
+
+#### Modelo de Datos (auth_db)
+
+users_credentials ~ id, user_id, password_hash, is_active, mfa_secret
+refreshtokens > id, token_hash, user_id, expires_at, is_revoked
+roles > id, name, permissions (JSONB)
+
+user_roles ~ user_id, role_id
+
+oauth_clients ~ client_id, client_secret_hash, scopes, redirect_uris
+
+3.3 ‘user-service’ — Gestion de Perfiles de Usuarios
+
+Repositorio Git: ‘git@github.com:santopegasus/user-service.git’
+Squad Owner: Squad Hermes
+
+Tech Lead: Isabella Carvalho
+
+Puerto: 8082
+
+##### Responsabilidad
+
+Gestiona los perfiles de todos los actores del sistema: pacientes, médicos, administradores de
+clinicas y operadores. Es la fuente de verdad para datos de perfil, como nombre, contacto,
+especialidades médicas (para el rol Doctor), y configuraciones de cuenta. No almacena
+credenciales de acceso — esa responsabilidad es exclusiva del ‘auth-service’.
+
+#### Tecnologias
++ Framework: Spring Boot 3.x
++ Base de Datos: PostgreSQL 15 (‘users_db’) via AWS RDS
++ Caché: Redis para cachear perfiles frecuentemente accedidos (TTL 10min)
+* Mapeo: MapStruct para conversién Entidad > DTO
++ Documentacién: springdoc-openapi (Swagger UI)
+##t## APIs Expuestas
+
+Método Endpoint Descripcién
+“POST” ‘Wilusers Creacién de nuevo usuario
+
+“GET “jvijusers/{id} Consulta de perfil por ID
+
+PUT” “jvijusers/{id} Actualizacién completa de perfil
+
+*PATCH’ ‘IviJusers/{id}/status Activacién / desactivacién de
+cuenta
+‘GET ‘Wildoctors’ Listado de médicos con filtros
+
+(especialidad, cidade)
+
+“GET “|vi/doctors/{id}/availability’ Disponibilidad de! médico (proxy
+para scheduling)
+
+“GET ‘/vijusers/{id}/preferences” Preferencias de notificacién del
+usuario
+
+#### Dependencias
+
+‘audit-service’ (SQS asincrono): Eventos de ‘user.created’, ‘user.updated’,
+user.deactivated”
+
++ ‘agendio-notification-service’ (SQS asincrono): Evento ‘user.created’ para disparo de
+email de bienvenida
+
+##### Modelo de Datos (users_db)
+
+users ~ id (UUID), name, email, phone, cpf_hash, role, status, created_at
+doctors ~ user_id (FK), crm, specialty, bio, consultation_price
+
+patients > user_id (FK), birth_date, health_plan, emergency_contact
+addresses > id, user_id (FK), street, city, state, zip_code
+
+preferences -~ user_id (FK), notify_email, notify_sms, language
+
+3.4 ‘agendio-scheduling-service’ — Nucleo de Agendamiento
+
+Repositorio Git: ‘git@github.com:santopegasus/agendio-scheduling-service.git’
+Squad Owner: Squad Agendio Core
+
+Tech Lead: Rodrigo Mendes
+
+Puerto: 8083
+
+#### Responsabilidad
+
+Es el servicio mas critico del ecosistema. Gestiona toda la logica de negocio de agendamiento de
+consultas médicas: creacion, confirmacion, cancelacién y reagendamiento de consultas; gestion
+de la agenda de disponibilidad de médicos; control de conflictos de horarios; y reglas de negocio
+especificas de cada clinica (como politicas de cancelaci6n y limites de consultas por paciente).
+Ninguna regla de agendamiento reside fuera de este servicio.
+
+##H## Tecnologias
++ Framework: Spring Boot 3.x + Spring Data JPA
+
+« Base de Datos: PostgreSQL 15 (‘scheduling_db’) via AWS RDS — transacciones ACID
+
+criticas
+
++ Migrations: Flyway — versionado de schema en Git junto al cédigo
+
++ Mensajeria: AWS SQS Producer (publica eventos de ciclo de vida de consultas)
++ Circuit Breaker: Resilience4j para llamadas a ‘user-service’ y ‘:payment-service’
+
+##H## APIs Expuestas
+
+Método Endpoint Descripcién
+
+‘post’ ‘/vilappointments" Crear nuevo agendamiento
+
+“GET */vV/appointments/{id} Consultar agendamiento por ID
+
+“PATCH” */vi/appointments/{id}/cancel’ Cancelar consulta
+
+“PATCH ‘Wi/appointments/{id}/reschedule’ _ Reagendar consulta
+
+‘GET ‘/vilappointments/patient/{patientid __Historial de consultas del paciente
+;
+
+“GET *|vi/schedules/doctor/{doctorid’ Agenda de disponibilidad del
+
+médico
+
+‘post’ ‘Wvi/schedules/doctor/{doctorid}/s|_ Configurar slots de disponibilidad
+ots”
+
+‘puT’ ‘/vi/schedules/doctor/{doctorld}/b|__ Bloquear periodo (vacaciones,
+ock’ ausencias)
+
+#### Dependencias
+
++ “user-service’ (REST sincrono, Resilience4j): Validar paciente y médico existentes
+
++ ‘payment-service’ (REST sincrono): Verificar status de pagamento antes de confirmar
+
+consulta
+
++ ‘audit-service’ (SQS): Eventos de toda alteracién de estado de consulta
+
+* ‘agendio-notification-service’ (SQS): Publicar eventos para disparo de notificaciones
+#### Eventos SQS Publicados
+
+appointment-created.fifo
+
+appointment-confirmed.fifo
+
+appointment-cancelled.fifo
+
+appointment-rescheduled.fifo
+
+appointment-reminder-due.fifo (publicado por scheduler interno, T-24h e T-1h)
+
+#### Modelo de Datos (scheduling_db)
+
+appointments id (UUID), patient_id, doctor_id, clinic_id, status,
+scheduled_at, duration_min, type, notes, created_at
+
+schedule_slots ~ id, doctor_id, day_of_week, start_time, end_time, is_available
+
+blocked_periods ~ id, doctor_id, start_date, end_date, reason
+
+clinics ~ id, name, cnpj, address, max_appointments_per_day
+
+3.5 ‘agendio-notification-service’ — Notificaciones
+
+Repositorio Git: ‘git@github.com:santopegasus/agendio-notification-service.git™
+Squad Owner: Squad Agendio Core
+
+Tech Lead: Rodrigo Mendes
+
+Puerto: 8084
+
+#### Responsabilidad
+
+Servicio stateless responsable de orquestar el envio de todas las notificaciones de la plataforma
+Agendio: confirmaciones de consulta, recordatorios automaticos, alertas de cancelacién y
+mensajes de bienvenida. Consume eventos de SQS y decide el canal de entrega (email via AWS
+SES o SMS via AWS SNS) basado en las preferencias del usuario (consultadas en ‘user-service’).
+No posee base de datos propia; su estado es integralmente derivado de los eventos recibidos.
+
+##H## Tecnologias
+
++ Framework: Spring Boot 3.x + Spring Cloud AWS
+
++ Email: AWS SES (Simple Email Service) con templates HTML/Thymeleaf
+
++ SMS: AWS SNS (Simple Notification Service)
+
++ Mensajeria: AWS SQS Consumer (escucha multiples colas)
+
++ Stateless: Sin base de datos propia — idempotencia garantizada via SQS deduplication ID
+#### Dependencias
+
++ ‘user-service’ (REST sincrono): Consultar preferencias de notificacién del usuario
+
++ AWS SES: Para envio de emails transaccionales
+
++ AWS SNS: Para envio de SMS
+
++ SQS (Consumer): Consume eventos de ‘agendio-scheduling-service’ y ‘user-service”
+#### Templates de Notificacién Gestionados
+
+Evento Canal Template
+‘appointment-created’ Email + SMS Confirmacién con cédigo e
+
+detalhes
+appointment-reminder-due Email + SMS Recordatorio 24h antes
+(T-24h)
+
+‘appointment-reminder-due (T-1h)’ SMS Recordatorio 1h antes
+
+‘appointment-cancelled
+‘appointment-rescheduled”
+“user-created’
+
+‘password-reset-requested”
+
+Email
+
+Email + SMS
+
+Email
+
+Email
+
+3.6 ‘payment-service’ — Procesamiento de Pagos
+
+Repositorio
+
+Squad Owner: Squad Pagamentos
+
+Tech Lead: Lucas Andrade
+Puerto: 8085
+#### Responsabilidad
+
+Confirmacién de cancelamiento
+
+Nuevo horario confirmado
+
+Bienvenida a la plataforma
+
+Link de reset (expira en 30min)
+
+“git@github.com:santopegasus/payment-service.git”
+
+Gestiona el ciclo de vida completo de transacciones financieras de la plataforma: procesamiento
+de pagos via Pix y cartao de crédito/débito, integracién con el gateway de pagamento externo
+(Stripe), gestidn de estornos y reembolsos, y generacién de recibos. Toda operacién financiera
+es idempotente y completamente auditada. EI servicio no almacena datos de cartao en sus
+propias bases de datos — el tokenizado es responsabilidad del gateway externo (PCI-DSS
+
+compliance).
+
+#### Tecnologias
++ Framework: Spring Boot 3.x
+
++ Base de Datos:
+financiera
+
+ostgreSQL 15 (‘payments_db’) via AWS RDS — ACID para consistencia
+
++ Gateway Externo: Stripe API (tarjeta) + Banco Central API (Pix via PSP parceiro)
+
++ Idempotencia: Chave de idempoténcia obrigatéria em todos endpoints de criagao
+
++ Webhooks: Endpoint seguro para receber callbacks do gateway (validagao de assinatura
+
+HMAC)
+
+##t## APIs Expuestas
+
+Método
+“POST”
+‘GET
+“post”
+
+“GET
+
+“POST”
+
+Endpoint
+
+*|vilpayments’
+‘Wifpayments/{id}’
+‘/v1/payments/{id}/refund
+
+‘/vi/payments/appointment/{appoin
+tmentid}*
+
+*|viJwebhooks/stripe’
+
+Descripcién
+Iniciar transaccién de pago
+Consultar status de pago
+Solicitar reembolso
+
+Pago vinculado a una consulta
+
+Recibir eventos del gateway Stripe
+
+‘posT’ ‘Ivilwebhooks/pix’ Recibir confirmaciones de Pix
+#### Dependencias
++ ‘audit-service’ (SQS): Todo evento de transaccién financiera es publicado para auditoria
+* ‘agendio-scheduling-service’ (SQS Consumer): Recibe ‘payment-confirmed’ para
+confirmar consulta
++ Stripe API (REST externo): Gateway de cartao
++ PSP Parceiro (REST externo): Gateway Pix
+#### Modelo de Datos (payments_db)
+
+transactions > id (UUID), appointment_id, patient_id, amount, currency,
+
+status, method, gateway_tx_id, idempotency_key, created_at
+refunds ~ id, transaction_id (FK), amount, reason, status, created_at
+payment_methods -~ id, patient_id, type (PIX/CARD), stripe_token, last4, is_default
+receipts > id, transaction_id (FK), pdf_url, issued_at
+
+3.7 ‘medical-records-service’ — Historial Clinico (LGPD Compliance)
+
+Repositorio Git: ‘git@github.com:santopegasus/medical-records-service.git™
+Squad Owner: Squad Clinico
+
+Tech Lead: Ana Paula Fonseca
+
+Puerto: 8086
+
+##### Responsabilidad
+
+El servicio mas sensible del ecosistema desde la perspectiva de proteccién de datos. Gestiona el
+historial clinico de los pacientes: anamneses, diagnésticos, prescripciones, resultados de
+examenes y archivos adjuntos (PDFs, imagenes). El acceso a los datos clinicos es estrictamente
+controlado por Role-Based Access Control (RBAC) y toda consulta a registros es auditada. El
+disefio del servicio cumple integralmente con los requisitos de la LGPD: consentimiento explicito
+del paciente es requerido para comparticién de datos, y los registros son anonimizables por
+solicitud.
+
+##H## Tecnologias
+« Framework: Spring Boot 3.x + Spring Security (RBAC granular)
++ Base de Datos: MongoDB via AWS DocumentDB (‘medical_records_db") — esquema
+flexible para evolucién de formularios clinicos
+
++ Almacenamiento de Archivos: AWS S3 (examenes em PDF, imagens DICOM) con URLs
+pre-firmadas de duracién limitada (15 minutos)
+
+* Criptografia: Campos sensibles (diagnésticos, anotaciones del médico) encriptados en
+
+reposo com AWS KMS
+
++ Anonimizaci6n: Pipeline de anonimizacién basado en requisicién formal, ejecutado como
+
+job asincrono
+
+#### Reglas de Acceso RBAC
+
+Rol
+*ROLE_PATIENT
+*ROLE_DOCTOR’
+*ROLE_ADMIN_CLINIC’
+*ROLE_AUDITOR’
+*ROLE_SYSTEM
+
+#### APIs Expuestas
+Método
+
+“POST”
+
+‘GET
+“GET
+
+“PUT”
+
+“POST”
+
+‘GET
+
+“pOsT’
+
+“POST”
+
+#### Dependencias
+
+Permiso
+
+Leer sus propios registros nicamente
+
+Leer y escribir registros de sus pacientes activos
+
+Leer (sin datos sensibles) registros de su clinica
+
+Leer metadatos de acceso (sin contenido clinico)
+
+Acceso de sistema para integraciones internas
+
+Endpoint
+
+‘/vi/records*
+
+‘jv1/records/patient/{patientid)’
+
+‘Ivilrecords/{idy’
+
+*‘|vifrecords/{id)’
+
+‘Wv1/records/{id}/attachments
+
+‘/vi/records/{id}/attachments/{filel
+dy
+
+*/viJrecords/patient/{patientid}/con
+sent
+
+‘Wvilrecords/patient/{patientid}/ano
+nymize"
+
+Descripcién
+
+Crear registro clinico (solo
+DocTor)
+
+Listar historial del paciente
+
+Consultar registro especifico
+
+Actualizar registro (solo DOCTOR
+propietario)
+
+Adjuntar archivo (PDF/imagen)
+
+URL pre-firmada $3 (TTL 15min)
+
+Registrar consentimiento de
+comparticion
+
+Solicitar anonimizaci6n (LGPD Art.
+18)
+
++ ‘auth-service’ (JWT validation): Extrae roles del token para RBAC
+
++ AWS S3: Almacenamiento de archivos adjuntos
+
++ AWS KMS: Gestion de llaves de encriptacién en reposo
+
+-service’ (SQS): Todo acceso a registros clinicos genera evento de auditoria
+
+3.8 ‘ai-assistant-service’ — Asistente de IA con Arquitectura RAG
+
+Repositorio Gi
+
+git@github.com:santopegasus/ai-assistant-service.git’
+Squad Owner: Squad IA
+
+Tech Lead: Fernanda Rocha
+
+Puerto: 8087
+
+##### Responsabilidad
+
+Provee capacidades de inteligencia artificial a la plataforma Agendio. La funcionalidad principal
+es un asistente de triaje inteligente que ayuda al paciente a identificar la especialidad médica mas
+adecuada para sus sintomas, basado en una arquitectura RAG (Retrieval-Augmented Generation).
+El servicio usa LangChain4j para la orquestacién del flujo de IA, Pinecone como vector database
+para el store de conocimiento médico indexado, y un LLM externo (OpenAl GPT-40) como
+
+modelo generativo. Ninguna credencial de la API de IA es hardcodeada en el cddigo; todas las
+keys son inyectadas via AWS Secrets Manager en tiempo de ejecucién.
+
+#### Tecnologias
+
++ Framework: Spring Boot 3.x + LangChain4j
+
++ LLM: OpenAl GPT-4o (via API externa)
+
++ Vector Store: Pinecone (embeddings de conocimiento médico)
+
++ Embeddings: OpenAl text-embedding-3-large
+
++ Caché de Respuestas: Redis (TTL 1h para consultas frecuentes / idénticas)
+
++ Rate Limiting Interno: Limite de 50 consultas/paciente/dia para control de costos
+##H## APIs Expuestas
+
+Método Endpoint Descripcién
+
+“POsT’ “Wiai/triage™ Triagem de sintomas, sugere
+especialidade
+
+“posT’ ‘Wiai/chat’ Chat assistido com histérico de
+contexto
+
+‘GET *Wi/ai/chat/{sessionid}/history’ Histérico de conversa da sessao
+
+“POsT’ ‘Wi/ai/knowledge/index’ Indexar novo documento médico
+(Admin only)
+
+‘DELETE’ *Wilai/chat/{sessionid} Encerrar e excluir sesso (LGPD)
+
+#### Flujo RAG Interno
+
+1. Paciente envia pregunta sobre sintomas
+2. ai-assistant-service genera embedding de la pregunta
+3. Consulta Pinecone para recuperar top-K chunks de documentos médicos relevantes
+
+4. Construye prompt enriquecido (pregunta + contexto recuperado)
+5. Envia prompt al LLM (GPT-40)
+
+6. Retorna respuesta + referencias a las fuentes usadas
+
+7. Registra interaccion (anonimizada) para mejora futura del modelo
+
+#### Dependencias
++ “user-service’ (REST): Verificar perfil del paciente antes de la triagem
++ ‘audit-service’ (SQS): Eventos de uso de IA para compliance
++ OpenAl API (externo): LLM y embeddings
++ Pinecone API (externo): Vector database
++ Redis: Caché de respuestas y sesiones de chat
+
+3.9 ‘audit-service’ — Registro de Auditoria y Compliance
+
+Repositorio Git: ‘git@github.com:santopegasus/audit-service.git”
+Squad Owner: Squad Governance
+
+Tech Lead: Marco Anténio Lima
+
+Puerto: 8088
+
+#### Responsabilidad
+
+El ‘audit-service’ es el sistema de registro histérico inmutable de todas las acciones sensibles del
+ecosistema de Santo Pegasus. Es consumidor puro — no expone APIs de escritura a otros
+servicios; recibe todos sus datos exclusivamente via mensajeria SQS. Provee APIs de consulta
+para auditores internos y para geracgao de relatorios de compliance. Los registros de auditoria
+jamas son modificados o eliminados; unicamente son archivados en AWS S3 Glacier tras 90 dias
+para retencidn de largo plazo.
+
+#### Tecnologias
++ Framework: Spring Boot 3.x
++ Base de Datos: PostgreSQL 15 (‘audit_db*) via AWS RDS — immutable append-only
++ Archivado: AWS S3 Glacier para retenci6n de largo plazo (regulatory compliance)
++ Mensajeria: AWS SQS Consumer exclusivo (multiples colas)
+
++ Busqueda: Indices PostgreSQL optimizados para queries por Trace ID, user_id, timestamp
+#### APIs Expuestas (Solo Lectura — Roles Restringidos)
+
+Método Endpoint Rol Requerido
+‘GET */vi/audit/events’ *ROLE_AUDITOR’, ROLE_ADMIN
+‘GET */vi/audit/events/{traceld} *ROLE_AUDITOR’
+
+“GET */vi/audit/events/user/{userid} “ROLE_AUDITOR
+
+‘GET
+
+“GET
+
+*/vi/audit/report/monthly"
+
+‘/vi/audit/events/service/{serviceN
+ame}
+
+#### Modelo de Datos (audit_db)
+
+*ROLE_ADMIN’
+
+audit_events > id (UUID), trace_id, span_id, service_name, action,
+
+actor_id, actor_role, resource_type, resource_id,
+
+payload_summary (NO dados sensibles), timestamp, ip_address
+
+“ROLE_AUDITOR
+
+SECCION 4 — MAPA DE DEPENDENCIAS ENTRE SERVICIOS
+
+4.1 Tabla de Dependencias
+
+Servicio
+Consumidor
+
+“api-gateway”
+
+‘agendio-schedulin
+g-service’
+
+‘agendio-schedulin
+g-service’
+
+*payment-service
+
+‘agendio-schedulin
+g-service’
+
+‘agendio-schedulin
+g-service’
+
+“user-service’
+
+“user-service’
+“auth-service”
+“auth-service’
+
+“medical-records-s
+ervice’
+
+‘ai-assistant-servic
+é
+
+Servicio Proveedor
+
+‘auth-service’
+
+user-service
+
+payment-service’
+
+audit-service’
+
+‘agendio-notificatio
+n-service’
+
+audit-service’
+
+‘agendio-notificatio
+n-service’
+
+audit-service’
+user-service
+audit-service’
+
+audit-service’
+
+user-service
+
+Tipo
+
+Sincrono
+
+Sincrono
+
+Sincrono
+
+Asincrono
+
+Asincrono
+
+Asincrono
+
+Asincrono
+
+Asincrono
+Sincrono
+Asincrono
+
+Asincrono
+
+Sincrono
+
+Protocolo
+
+REST / Redis Cache
+
+REST (WebClient)
+
+REST (WebClient)
+
+sas
+
+sas
+
+sas
+
+sas
+
+sas
+
+REST (WebClient)
+
+sas
+
+sas
+
+REST
+
+Alta
+
+Alta
+
+Alta
+
+Média
+
+Média
+
+Média
+
+Baixa
+
+Média
+
+Alta
+
+Média
+
+Alta
+
+Baixa
+
+‘ai-assistant-servic | ‘audit-service’ Asincrono sas
+e
+
+4.2 Diagrama de Grafo de Dependencias
+
+API Gateway
+
+sincrono (token validation)
+v
+auth-service
+async (SQS)
+sincrono v
+v
+user-service audit-service todos los servicios
+(async SQS)
+sincrono async (SQS)
+v v
+
+agendio- agendio-notification-
+scheduling- service
+
+service
+
+sincrono
+v
+
+payment-
+
+service
+
+medical-records- ai-assistant-
+
+service service
+
+Média
+
+SECCION 5 — PATRONES DE COMUNICACION
+
+5.1 REST Sincrono con WebClient
+
+Para comunicaciones sincronas entre servicios, Santo Pegasus adopta el uso del Spring
+WebClient (no-bloqueante, reactivo), disponible en el modulo ‘spring-webflux’. La eleccion de
+WebClient sobre el deprecated RestTemplate se justifica por su mejor uso de threads y
+soporte nativo a operaciones non-blocking.
+
+Reglas obligatorias para comunicacién REST sincrona:
+
++ Todos los clients HTTP entre servicios izan mTLS para autenticacién mutua
++ Timeout de conexién: 3 segundos (configurable por variable de entorno)
++ Timeout de lectura: 10 segundos
+* Circuit Breaker via Resilience4j en todas las Ilamadas a servicios externos
++ Retry con backoff exponencial (max 3 tentativas, jitter de 500ms)
++ Las respuestas de error deben seguir RFC 7807 (Problem Details)
+“java
+// Ejemplo candénico de WebClient con Resilience4j
+@Service
+public class UserServiceClient {
+private final WebClient webClient;
+private final CircuitBreaker circuitBreaker;
+public Mono<UserProfileDTO> getUserProfile(UUID userid) {
+return circuitBreaker.executeSupplier(() ->
+webClient.get()
+-uri("/v1/users/{id}", userld)
+-retrieve()
+.onStatus(HttpStatusCode::is4xxClientError, this::handleClientError)
+.bodyToMono(UserProfileDTO.class)
+.timeout(Duration.of Seconds(10))
+
+5.2 gRPC para Alta Performance
+
+Para comunicaciones de alta frecuencia y baja latencia entre servicios internos que no
+requieren pasar por el API Gateway — como el ‘agendio-scheduling-service’ consultando
+disponibilidad en tiempo real — Santo Pegasus adopta gRPC como protocolo de comunicagao.
+
+Servicios que implementan gRPC (actualmente):
+* ‘agendio-scheduling-service’ > ‘user-service’ (endpoint de validacao rapida de médico)
++ ‘auth-service’ > “user-service’ (endpoint de verificagao de status em login)
+Vantagens adopatadas:
+* Protocol Buffers (protobuf) garantem payload menor e serializagao mais rapida que JSON
+« HTTP/2 multiplexing reduce laténcia em chamadas concorrentes
+* Contrato fortemente tipado via *.proto’ files versionados em repositério compartilhado
+*““protobuf
+// user-service.proto (exemplo)
+syntax = "proto:
+
+service UserService {
+rpc ValidateUser (ValidateUserRequest) returns (ValidateUserResponse);
+}
+message ValidateUserRequest {
+string user_id = 1;
+}
+message ValidateUserResponse {
+bool is_active = 1;
+string role = 2;
+string fullname = 3;
+}
+
+5.3 Mensajeria Asincrona com AWS SQS
+
+Para comunicagao entre dominios (cross-domain events), adotamos AWS SQS FIFO Queues
+para garantir ordenacao e exactly-once delivery. A mensageria assincrona é o padrao
+preferido para eventos que nao requerem resposta imediata, desacoplando os produtores dos
+consumidores.
+
+Padrées obrigatérios para SQS:
+« Filas FIFO para garantir ordenacao e deduplicagao (‘MessageDeduplicationid’ obrigatério)
++ Dead Letter Queues (DLQ) configuradas com ‘maxReceiveCount = 3° para todas as filas
+principais
++ Idempoténcia no lado consumidor: toda operacao deve ser segura para reprocessamento
++ Envelope de evento padronizado:
+
+“eventld
+
+uid-v4",
+
+“eventType": "appointment.created",
+
+"source":
+
+“traceld": "propagado-do-header-htt
+'2026-06-16T10:30:002Z",
+
+“timestamp'
+
+“schemaVersion": "1.0",
+
+"payload": {
+“appointmentid": "uuid",
+
+“patientid": "uuid’
+"doctorld": “uuid",
+
+agendio-scheduling-service",
+
+"scheduledAt": "2026-06-20T14:00:00Z"
+
+}
+}
+
+SECCION 6 — ESTRATEGIA DE BASES DE DATOS
+
+6.1 Database per Service Pattern
+
+Cada microservicio posee y controla exclusivamente su propia base de datos. El acceso
+directo a la base de datos de otro servicio esta terminantemente prohibido. La integracién
+entre datos de distintos dominios ocurre exclusivamente via APIs o mensajeria.
+
+6.2 Mapa de Bases de Datos por Servicio
+
+Servicio Motor
+“auth-service’ PostgreSQL 15
+“user-service’ PostgreSQL 15
+
+‘agendio-schedulin | PostgreSQL 15
+g-service’
+
+“payment-service’ PostgreSQL 15
+
+“medical-records-s | MongoDB 6
+ervice’
+
+‘ai-assistant-servic Pinecone
+e
+
+Instancia AWS,
+
+RDS Multi-AZ
+
+RDS Multi-AZ
+
+RDS Multi-AZ
+
+RDS Multi-AZ
+
+AWS DocumentDB
+
+Pinecone Cloud
+
+Base de Datos
+
+‘auth_db*
+
+users_db*
+
+scheduling_db’
+
+payments_db’
+
+medical_records_d
+ee
+
+knowledge_vector
+Fs
+
+Justificativa
+
+Consistencia fuerte
+para credenciais
+
+Dados relacionais
+de perfil
+
+ACID para
+agendamentos
+criticos
+
+ACID para
+transagées
+financeiras
+
+Esquema flexivel
+para registros
+clinicos
+
+Vector store para
+RAG
+
+“audit-service’ PostgreSQL 15 RDS Multi-AZ ‘auditdb* Append-only, alta
+
+integridade
+Caché Global Redis 7 ElastiCache Multiplos TTL-based caching
+namespaces cross-service
+6.3 Redis — Estrategia de Caché
+Namespace Contenido TTL Propietario
+‘auth:token:{jti}’ Blacklist de tokens Até expiracao do JWT ‘auth-service’
+revogados
+“auth:jwks’ JWKS keys publicas 5 minutos ‘auth-service’
+(cache no API GW)
+“user:profile:{userld} Perfil do usuario 10 minutos “user-service’
+serializado
+“schedule:availability:(do Slots disponiveis do 2 minutos “scheduling-service’
+ctorid}-{date} médico
+‘ai:response:{queryHash} — Respostas de IA Thora ‘ai-assistant-service’
+. cacheadas
+
+6.4 Migrations con Flyway
+
+Todas las bases de datos PostgreSQL utilizan Flyway para versionado de schema. Las reglas
+son:
+
+* Scripts nombrados como ‘V{versao}_{descripcion}.sql’ (ej:
+“V2_add_appointment_notes_column.sq|")
+
++ Scripts de migracao sao imutaveis apds merge em ‘main*
+
++ Migrations sao executadas automaticamente no startup do servico (integradas ao pipeline
+CI/CD)
+
++ Scripts DDL manuais em producao sao terminantemente proibidos
+
+SECCION 7 — API GATEWAY
+
+7.1Responsabilidades
+
+El API Gateway es el Unico punto de entrada para todos los clientes externos. Su posicién en la
+arquitetura le otorga responsabilidades criticas de seguridad, observabilidad y gestion de
+trafico:
+
+Responsabilidad Detalles
+
+Routing Redirige cada ruta para o microservico correspondente
+com base no path prefix (‘/auth/’, "/users/’,
+“/appointments/")
+
+Autenticacién Centralizada Valida token JWT en cada requisicao (via Redis cache
+del ‘auth-service’) antes de enrutar
+
+Rate Limiting 100 req/min por tenant (ajustavel por plano); 10 req/min
+para endpoints sensibles
+
+SSL/TLS Termination ‘Toda comunicacao externa usa TLS 1.3; internamente
+se usa mTLS
+
+coRS Configuracao centralizada de origens permitidas por
+ambiente
+
+Request Logging Todo request é logado com Trace ID para
+
+observabilidade
+
+Circuit Breaking Se um servico interno nao responde, o Gateway retorna
+503 imediatamente
+
+Transformaciones Adigao de headers internos (X-User-Id, X-User-Role,
+X-Tenant-Id) para context propagation
+
+7.2 Tecnologia
+
++ Kong Gateway deployado em AWS ECS Fargate
+« Plugins utilizados: ‘jwt’, ‘rate-limiting’, ‘request-id", ‘prometheus’,
+
++ Configurado via Kong Admin API com ‘Declarative Config (deck) versionado em Git
+7.3 Mapeo de Rutas
+
+Iv1Jauth/ > auth-service:8081
+Ivijusers/ > user-service:8082
+/vi/doctors/ > user-service:8082
+
+/vi/appointments/ > agendio-scheduling-service:8083
+/vi/schedules/ > agendio-scheduling-service:8083
+/vifpayments/ > payment-service:8085
+
+Ivirecords/ > medical-records-service:8086
+Wiail > ai-assistant-service:8087
+
+1Jaudit/ > audit-service:8088 (somente roles AUDITOR/ADMIN)
+
+SECCION 8 — INFRAESTRUCTURA EN AWS
+
+8.1Mapa de Servicios AWS Utilizados
+
+Uso Servicio(s) Consumidor(es)
+
+ECS Fargate
+RDS PostgreSQL Multi-AZ
+AWS DocumentDB
+ElastiCache (Redis)
+
+SQS FIFO
+
+SES
+SNS
+
+s3
+S3 Glacier
+Secrets Manager
+KMS
+Cloudwatch
+
+ECR
+
+Route 53
+Certificate Manager (ACM)
+VPC + Private Subnets
+
+8.2 Topologia de Red
+
+AWS VPC (10.0.0.0/16)
+
+Public Subnets
+
+Orquestaci6n de contenedores
+Docker (sin EC2 gestionado)
+
+Bases de datos relacionales com
+failover automatico
+
+MongoDB-compatible para
+documentos clinicos flexibles
+
+Caché distribuido y blacklist de
+tokens
+
+Mensajeria asincrona entre
+dominios
+
+Envio de emails transaccionales
+Envio de SMS
+
+Archivos de exdmenes, PDFs,
+backups de audit
+
+Archivado de logs de auditoria (90+
+dias)
+
+Gestidn de credenciales, llaves de
+API, certificados
+
+Encriptacién de dados sensibles en
+reposo
+
+Logs, métricas nativas AWS,
+alarmes basicos
+
+Registry privado de imagens
+Docker
+
+DNS y health checks
+Certificados TLS
+
+Isolamento de red — microservicios
+nunea expostos publicamente
+
+[ALB / API Gateway] [NAT Gateway]
+
+Todos los microservicios
+
+auth, user, scheduling, payment,
+
+audit
+
+“medical-records-service’
+
+auth, user, scheduling, ai-assistant
+
+Todos (producer/consumer)
+
+‘agendio-notification-service’
+‘agendio-notification-service’
+
+medical-records, audit
+
+‘audit-service’
+
+Todos los microservicios
+
+“medical-records-service’
+
+Todos
+
+CI/CD Pipeline
+
+API Gateway
+API Gateway, Load Balancer
+
+Todos
+
+Private Subnets (App)
+[ECS Fargate Tasks — Microservicios]
+[ElastiCache Redis]
+
+Private Subnets (Data)
+[RDS PostgreSQL Multi-AZ]
+[DocumentDB Cluster]
+
+8.3 Estrategia de Deploy — ECS Fargate
+
++ Cada microservicio es una ECS Service dedicada com auto-scaling baseado em CPU
+(target: 60%)
+
++ Task Definitions versionadas; rollback em < 2 minutos via ECS rolling deployment
++ Imagens Docker armazenadas no AWS ECR com scanning de vulnerabilidades automatico
+
++ Blue-Green deployment via AWS CodeDeploy para servicos criticos (‘auth-service’,
+“agendio-scheduling-service’, ‘payment-service’)
+
++ Health checks configurados em cada ECS Task apontando para ‘/actuator/health”
+
+SECCION 9 — OBSERVABILIDAD DISTRIBUIDA
+
+9.1Los Tres Pilares
+
+La observabilidad en Santo Pegasus se basa en los tres pilares fundamentales descritos na
+Guia de Ingenieria Back-end: logs, métricas y rastreo distribuido.
+
+9.2 Propagacion del Trace ID
+
+El ‘Trace ID’ es el hilo conductor que permite rastrear el ciclo de vida completo de una
+requisicion a través de todos los microservicos involucrados.
+
+Flujo de propagacién:
+
+Cliente > API Gateway (genera Trace ID si inexistente)
+
+~ header: X-B3-Traceld: abc123, X-B3-Spanld: span01
+
+> auth-service (propaga headers, genera Span propio)
+~ header: X-B3-Traceld: abc123, X-B3-Spanld: span02
+
+> agendio-scheduling-service (propaga, genera Span propio)
+~ header: X-B3-Traceld: abc123, X-B3-Spanld: span03
+
+~> SQS Message (Trace ID incluido no envelope do evento)
+
+> agendio-notification-service (propaga via envelope SQS)
+
+> audit-service (propaga via envelope SQS)
+
+Implementacién técnica:
+* Spring Cloud Sleuth (integrado com Micrometer Tracing) para propagacao automatica
++ OpenTelemetry Collector deployado como sidecar em cada ECS Task
++ Dados de tracing exportados para Datadog APM via OTLP
+
+9.3 Logging Estructurado
+
+Conforme a Guia de Ingenieria Back-end (v2.4.0):
++ SLF4J + Logback como stack de logging em todos os servicos
+
+turado com campos padronizados: ‘traceld’, ‘spanid’,
+imestamp’, ‘userid’ (quando disponivel)
+
++ Nivel predeterminado em producao: INFO; nivel DEBUG somente via feature flag
+temporaria
+
++ Prohi
+
+lo registrar informaci6n sensible (Pll): contrasefias, CPF, datos de pago
+
++ Logs ingeridos em Datadog Log Management via CloudWatch Logs subscription filter
+
+« Enel proyecto Agendio, el ID da consulta pode ser registrado para rastreio, mas os dados
+pessoais dos pacientes devem ser omitidos
+
+9.4 Métricas con Spring Boot Actuator + Micrometer
+
+* Cada servicio expone ‘/actuator/metrics’, ‘/actuator/health’, ‘/actuator/prometheus’
++ Prometheus coleta métricas via scraping (ECS Service Discovery)
++ Datadog recebe métricas via integragao nativa Prometheus > Datadog Agent
+Métricas clave monitoreadas por servicio:
+
+Métrica Descripcién Alerta configurada
+
+“http. server.requests.duration’ Laténcia P95 por endpoint > 2s > Waning; > 5s > Critical
+“http.server.requests.error.rate’ Taxa de erros 5xx > 1% > Warning; > 5% > Critical
+‘jvm.memory.used Uso de meméria JVM > 85% > Warning
+“db.pool.connections.active’ Conexiones activas al pool DB > 80% da pool > Warning
+“sqs.messages.received Throughput de mensagens SQS Anomalia detectada > Alert
+‘circuit.breaker.state’ Estado do Circuit Breaker OPEN + Critical imediato
+
+9.5 Dashboards en Datadog
+
+Dashboard Squad Contenido
+
+Platform Overview Todos Visdo geral satide de todos os
+servicos
+
+Auth & Security Squad Hermes Login rates, token errors, anomalias
+
+de seguranca
+
+Scheduling Core Squad Agendio Core Agendamentos/hora, taxa de
+cancelamento, laténcia
+
+Payments Squad Pagamentos Volume transacional, taxa de erro
+de gateway, chargeback
+
+Clinical Records Squad Clinico Acessos a registros, erros RBAC,
+uploads S3
+Al Assistant Squad IA Laténcia de inferéncia, custo
+
+estimado de tokens LLM
+
+Governance Squad Governance Eventos de auditoria, anomalias de
+compliance
+
+SECCION 10 — ESTRATEGIA DE VERSIONADO DE APIS
+
+10.1 Politica de Versionado
+
+Todas as APIs de Santo Pegasus seguem versionado explicito via path prefix ("/v1/", “/v2/"). 0
+versionado via headers (“Accept: application/vnd.santopegasus.v2+json’) foi avaliado e
+descartado por dificultar a observabilidade e 0 roteamento no API Gateway.
+
+Reglas:
+
++ Novas versiones de API sao criadas somente quando ha breaking changes
+
+« Adicdes retrocompativeis (novos campos opcionais, novos endpoints) nado requerem
+nova versao
+
++ Uma versao obsoleta (deprecated) permanece ativa por minimo 6 meses apés a publicacao
+da nova versao
+
+10.2 Proceso de Deprecacién
+
+FASE 1— Anuncio (Dia 0)
+« Publicar changelog no repositdrio e canal #engineering-announcements
+* Adicionar header: Deprecation: true, Sunset: <data> em todas respostas
+
+« Atualizar documentagao Swagger com banner de deprecation
+
+v
+
+FASE 2 — Periodo de Suporte (Més 1 ao 6)
+
+« Ambas vers6es ativas e suportadas
+
+« Métricas de adocdo monitoradas no Datadog
+
+» Comunicagao ativa para clientes ainda na versao antiga
+
+v
+
+FASE 3 — Sunset (Més 6+)
+« Versao antiga retorna HTTP 410 Gone com link para migragao
+
++ Remogao do cédigo apés 30 dias de 410
+
+10.3 Versiones Actuales por Servicio
+
+Servicio Versién Activa Version Deprecated Sunset
+
+“auth-service’ vl
+
+“user-service” vl _ -
+
+‘agendio-scheduling-serv | v2 vl Dez/2026
+ice’
+
+“payment-service vl - -
+
+“medical-records-service | v1 _ -
+
+‘ai-assistant-service’ v1 (beta) = =
+
+‘audit-service’ vl _ -
+
+SECCION 11 — SEGURIDAD ENTRE SERVICIOS
+
+11.1 Autenticacién y Autorizacion
+
+Conforme documentado na Guia de Ingenieria Back-end (v2.4.0), o controle de acceso es
+gestionado de forma centralizada utilizando Spring Security. Todos os endpoints sao
+protegidos; nenhum endpoint interno é acessivel sem validagao de identidade. Tokens JWT
+com flujo OAuth 2.0 / OpenID Connect sao o mecanismo padrao. A extracao e validagao de
+permiss6es (roles) ocorrem a nivel de endpoint.
+
+11.2 mTLS para Comunicacion Interna
+
+Toda comunicagao servigo-a-servico dentro da VPC privada usa mTLS (Mutual TLS). Isso
+garante que ambos os lados de uma conexao se autentiquem, prevenindo ataques de spoofing
+e man-in-the-middle em comunicacées internas.
+
+Implementacion:
+* Certificados gerenciados por AWS Certificate Manager (ACM) Private CA
+* Certificados rotacionados automaticamente a cada 90 dias
+* Cada microservigo possui um certificado de cliente Unico para autenticagado mutua
++ Service Mesh (AWS App Mesh) como camada de controle de mTLS (em rollout progressivo
+— ver Roadmap)
+
+11.3 Service Accounts y Principio de Privilegio Minimo
+Cada microservicio opera com um IAM Role exclusivo na AWS, seguindo estritamente o
+principio de privilegio minimo:
+
+Servicio IAM Role Permisos concedidos
+
+“auth-service” ‘iam-role-auth-service’ Secrets Manager (auth/),
+ElastiCache, SQS (publish
+audit-events)
+
+“agendio-scheduling-service’
+
+“medical-records-service’
+
+“payment-service’
+
+“ai-assistant-service’
+
+‘audit-service’
+
+‘iam-role-scheduling-service"
+
+‘iam-role-medical-records*
+
+‘iam-role-payment-service’
+
+‘iam-role-ai-assistant™
+
+‘iam-role-audit-service’
+
+RDS (scheduling_db), SQS
+(publish/consume scheduling
+queues)
+
+DocumentDB, $3 (medical-files/),
+KMS, SQS (publish audit-events)
+
+RDS (payments_db), Secrets
+Manager (payment/), SQS
+
+Secrets Manager (ai/), ElastiCache,
+sas
+
+RDS (audit_db), SQS (consume all
+audit queues), S3 Glacier
+
+Credenciales de servicios externos (Stripe, OpenAl, Pinecone): armazenadas exclusivamente em
+AWS Secrets Manager e injetadas em tempo de execucao via Spring Cloud Config. Jamais
+escritas no cédigo ou repositorios Git. Ferramentas de escaneo automatico (‘gitleaks’,
+“trufflehog’) sao executadas nos pipelines de CI/CD para detectar e bloquear commits que
+
+contenham secrets.
+
+11.4

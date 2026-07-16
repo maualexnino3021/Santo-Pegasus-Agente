@@ -1,0 +1,1834 @@
+Santo Pegasus Soluciones: Guia Oficial de
+Ingenieria Front-end
+
+Versi6n del Documento: 1.0.0
+Ultima Actualizacion: Octubre de 2025
+Departamento: Ingenieria de Software / Chapter de Front-end
+
+Tabla de Contenidos
+
+1. Introduccion y Filosofia del Front-end en Santo Pegasus
+2. Principios Fundamentales de Ingenieria
+3. Stack Tecnolégico Estandar
+
+4. Arquitectura de Componentes
+
+5. Gestion del Estado
+
+6. Consumo de APIs
+
+7. Estandares de Codigo
+
+8. Estilo y Design System
+
+9. Gestion de Formularios
+
+10. Estrategia y Cobertura de Pruebas
+
+11. Proceso de Code Review
+
+12. Control de Versiones
+
+13. Performance y Web Vitals
+
+14. Seguridad en el Front-end
+
+15. CI/CD Front-end
+
+1. Introduccion y Filosofia del Front-end en Santo Pegasus
+
+1.1Presentacion Institucional
+
+Bienvenido a la Guia Oficial de Ingenieria Front-end de Santo Pegasus Soluciones. Este
+documento constituye la fuente de la verdad para todos los desarrolladores que integran el
+Chapter de Front-end, y su consulta es de caracter obligatorio para cualquier proyecto nuevo 0
+
+refactorizacion significativa de interfaces de usuario.
+
+Esta guia fue concebida para existir en perfecta coherencia con la Guia Oficial de Ingenieria
+Back-end (versién 2.4.0, Octubre de 2025), con la cual comparte filosofia, valores de
+ingenieria y estandares de proceso. El lector que ya domine el documento de back-end
+encontrara en estas paginas un lenguaje familiar, aunque aplicado a las particularidades y
+desafios propios de la capa de presentacién.
+
+Santo Pegasus Soluciones construye productos digitales de alta complejidad, cuyas interfaces
+de usuario son el principal punto de contacto entre la tecnologia que desarrollamos y las
+personas que la utilizan. La excelencia en el front-end no es un ornamento: es un requisito de
+negocio.
+
+1.2 Filosofia del Front-end
+
+En Santo Pegasus, entendemos el front-end como una disciplina de ingenieria de software
+completa, sujeta a los mismos criterios de rigor técnico, legibilidad, seguridad y sostenibilidad
+que cualquier otra capa del sistema. Rechazamos la concepci6n que trata el cédigo de interfaz
+como un conjunto de scripts auxiliares; en cambio, lo tratamos como un sistema distribuido de
+componentes que debe ser disefiado, probado, versionado y mantenido con la misma
+disciplina que cualquier microservicio de nuestro ecosistema back-end.
+
+Los tres pilares filos6ficos que guian todas nuestras decisiones de front-end son:
+
++ Experiencia del Usuario como Métrica Técnica: La performance percibida por el usuario final
+—medida a través de Web Vitals— es un criterio de aceptacién técnica, no una preocupacion
+exclusiva del area de producto.
+
++ Componentes como Contratos: Cada componente expone una interfaz publica (sus props)
+que debe ser tan cuidadosamente disefiada como los endpoints de una API REST. Un
+componente bien disefiado es predecible, reutilizable y testeable de forma aislada.
+
++ Seguridad en la Capa de Presentacion: El front-end no es un entorno confiable. Todo dato
+que proviene del servidor debe ser tratado con desconfianza; todo dato introducido por el
+usuario debe ser validado y saneado. La seguridad es una responsabilidad compartida entre
+todas las capas del sistema.
+
+1.3 Alcance y Aplicabilidad
+
+Las directrices de este documento son de aplicacién obligatoria para:
+* Todos los proyectos nuevos iniciados a partir de Octubre de 2025.
+* Cualquier refactorizacion que afecte mas del 30% de la base de cddigo de un proyecto
+existente.
+* Todo desarrollador del Chapter de Front-end, independientemente de su nivel de seniority.
+
+Su aplicacién es fuertemente recomendada para proyectos legacy en mantenimiento activo,
+donde la adopcién gradual es preferible a la no adopcién.
+
+1.4 Actualizacion y Revision
+
+Este documento es un artefacto vivo. Cualquier miembro del Chapter de Front-end puede
+proponer modificaciones a través de un Pull Request dirigido al repositorio “eng-guidelines”,
+siguiendo el proceso de Code Review estdndar descrito en la Seccidn 11. Las actualizaciones
+deben ser aprobadas por al menos dos miembros Senior del Chapter y por el Tech Lead
+responsable.
+
+2. Principios Fundamentales de Ingenieria
+
+Todo desarrollador del Chapter de Front-end debe tener los siguientes principios
+profundamente internalizados. Su aplicacién no es opcional: es la base sobre la cual se
+construye cédigo sostenible, escalable y colaborativo.
+
+2.1 SOLID Aplicado al Front-end
+
+Los principios SOLID, aunque originados en el contexto de la orientacion a objetos, poseen una
+traduccion directa y poderosa en el desarrollo de interfaces modernas basadas en
+componentes.
+
+#### S — Single Responsibility Principle (SRP)
+
+Un componente debe tener una unica razon para cambiar. En la practica, esto significa que un
+componente no debe simultaneamente obtener datos de la API, transformarlos, manejar el estado
+de carga y renderizar la interfaz. Cada una de estas responsabilidades debe estar delegada a la
+capa correspondiente: los hooks de datos, los transformadores de estado y los componentes de
+presentacion.
+
+Incorrecto:
+
+SX
+/| ProductCard hace demasiado
+const ProductCard = ({ productld }: { productld: string }) => {
+const [product, setProduct] = useState(null);
+const [loading, setLoading] = useState(true);
+useEffect(() => {
+fetch("/api/products/${productld}’)
+.then(res => res.json())
+-then(data => {
+setProduct(data);
+setLoading(false);
+vy;
+}, [productid]);
+
+if (loading) return <Spinner />;
+return <div>{product?.name}</div>;
+h
+
+Correcto:
+“tsx
+/| Responsabilidades separadas
+// hook: useProduct.ts
+export const useProduct = (productld: string) =>
+useQuery({ queryKey: ['product', productid], queryFn: () => fetchProduct(productld) });
+// componente de presentacién: ProductCard.tsx
+export const ProductCard = ({ product }: { product: Product }) => (
+<div>{product.name}</div>
+HH
+// contenedor: ProductCardContainer.tsx
+export const ProductCardContainer = ({ productid }: { productld: string }) => {
+const { data, isLoading } = useProduct(productld);
+if (isLoading) return <Spinner />;
+return <ProductCard product={data!} />;
+i
+
+#### O — Open/Closed Principle (OCP)
+
+Los componentes deben estar abiertos para extension y cerrados para modificacién. En React,
+esto se implementa a través de composici6n y del patron de props como punto de extensién,
+evitando modificar el cuerpo interno de un componente para agregar nuevos comportamientos.
+
+#### L— Liskov Substitution Principle (LSP)
+
+Un componente especializado debe poder sustituir a su componente base sin alterar el
+comportamiento esperado por el sistema. En términos prdcticos, si un PrimaryButton’ extiende a
+‘Button’, debe respetar y soportar todas las props del componente padre.
+
+#### | — Interface Segregation Principle (ISP)
+
+Las interfaces de props de los componentes deben ser especificas y cohesi
+no debe estar obligado a recibir props que no utiliza. Prefiera la compos
+pequefias sobre la creacién de un tinico objeto de props monolitico.
+
+Un componente
+jon de interfaces
+
+#### D — Dependency Inversion Principle (DIP)
+
+Los componentes de alto nivel no deben depender de implementaciones concretas. En React,
+esto se expresa a través de hooks de abstraccion (por ejemplo, ‘useUserRepository") que pueden
+ser facilmente sustituidos por mocks en los tests, sin que el componente conozca la fuente real
+de los datos.
+
+2.2 DRY — Don't Repeat Yourself
+
+La duplicacion de codigo en el front-end es uno de los principales generadores de deuda
+técnica. La creacion de un nuevo componente, hook o funcidn utilitaria debe siempre ir
+precedida de una busqueda en la base de cédigo existente. Cuando se identifique logica
+duplicada en dos o mas lugares, la refactorizacion hacia una abstraccién compartida es
+obligatoria.
+
+El directorio “src/components/ui/’ (componentes del Design System) y ‘src/hooks/" son los
+repositorios candénicos de cédigo reutilizable del proyecto.
+
+2.3 KISS — Keep It Simple, Stupid
+
+La complejidad innecesaria es el mayor enemigo de la mantenibilidad. Ante la eleccién entre
+una solucioén simple y una solucion “elegante" pero compleja, Santo Pegasus elige siempre la
+simplicidad. El codigo que cualquier desarrollador de nivel Pleno puede leer y entender en
+menos de cinco minutos es preferible al codigo que requiere conocimiento especializado de
+patrones avanzados.
+
+2.4 YAGNI — You Aren't Gonna Need It
+
+No construya abstracciones, componentes genéricos o sistemas de configuracién para casos
+de uso hipotéticos que atin no existen. La arquitectura debe responder a necesidades reales y
+presentes. La sobre-ingenieria prematura es tan perjudicial como la ausencia de arquitectura.
+Los componentes deben ser generalizados Unicamente cuando la necesidad de reutilizacion
+se haya demostrado en la practica.
+
+3. Stack Tecnoldgico Estandar
+
+La coherencia del stack tecnoldgico es fundamental para reducir la friccién entre equipos,
+facilitar la rotacidn de desarrolladores entre proyectos y garantizar que las soluciones de
+CI/CD sean aplicables transversalmente.
+
+3.1 Tabla del Stack Principal
+
+Categoria Tecnologia Versién Minima Justificativa
+
+Lenguaje TypeScript 5.0+ Tipado estatico,
+integracién con APIs
+back-end
+
+Framework UI
+
+Meta-framework
+
+Bundler
+
+Estado Global
+
+Estado del Servidor
+
+Formularios
+
+Validacion
+
+HTTP Client
+
+Estilos
+
+Componentes Base
+
+Testing Unitario
+
+Testing Componentes
+
+Testing E2E
+
+Linting
+
+Formateo
+
+3.2 React 18+ y Concurrent Features
+
+React
+
+Next js
+
+Vite
+
+Zustand
+
+TanStack Query
+
+React Hook Form
+
+Zod
+
+Axios
+
+Tailwind CSS
+
+shaden/ui
+
+Vitest
+
+Testing Library
+
+Playwright
+
+ESLint
+
+Prettier
+
+18+
+
+1+
+
+16+
+
+Latest
+
++
+
+14+
+
+1.40+
+
+Concurrent features,
+ecosistema maduro
+
+SSR/SSG, App Router,
+RSC
+
+Build rapido para SPA,
+HMR eficiente
+
+Ligereza, sin boilerplate
+
+Cache, revalidaci6n,
+sincronizacion
+
+Performance, integracién
+con Zod
+
+Schemas tipados,
+integracién con RHF
+
+Interceptors, manejo
+centralizado
+
+Utility-first, consistencia
+de tokens
+
+Accesible, headless,
+personalizable
+
+Nativo Vite, API
+‘compatible con Jest
+
+Enfoque en
+‘comportamiento de
+usuario
+
+Multi-browser, Cl-ready
+
+Calidad y consistencia de
+cédigo
+
+Formato uniforme, sin
+debates
+
+El uso de React 18+ es obligatorio en todos los proyectos nuevos. Las siguientes
+
+caracteristicas deben ser adoptadas de forma apropiada:
+
++ ‘Suspense’: Utilizado para manejar estados de carga de componentes asincronos, en
+combinaci6n con TanStack Query.
+
++ ‘useTransition’ y ‘startTransition’: Adoptados para marcar actualizaciones de estado no
+urgentes, manteniendo la interfaz responsiva durante renderizados costosos.
+
++ Server Components (Next.js): En proyectos Next.js, se debe privilegiar el uso de React
+Server Components para contenido estatico o fetching inicial de datos, reduciendo el
+JavaScript enviado al cliente.
+
+3.3 Next.js para Proyectos con SSR/SSG
+
+Next.js es el meta-framework obligatorio cuando el proyecto requiera:
++ SEO: Paginas de marketing, catalogos de productos, blogs institucionales.
+
++ Performance de carga ini
+bajo rendimiento.
+
+‘ial: Aplicaciones con usuarios en redes lentas 0 dispositivos de
+
++ Server-Side Rendering: Datos que deben ser pre-renderizados en el servidor por razones
+de seguridad o consistencia.
+
+Para aplicaciones puramente internas (dashboards administrativos, herramientas de gestion
+sin requisitos de SEO), el uso de Vite + React como SPA es la opcién estandar y preferida por
+‘su simplicidad operativa.
+
+3.4 Vite como Bundler para SPAS
+
+La configuracion de Vite debe mantenerse en el archivo ‘vite.config.ts’ en la raiz del proyecto.
+Las customizaciones deben ser documentadas con comentarios que expliquen la justificativa
+técnica de cada opcién no estandar.
+
+“typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+export default defineConfig({
+plugins: [react()],
+resolve: {
+alias: {
+‘@': path.resolve(_dirname, './src'),
+h
+h
+build: {
+/| Code splitting automatico por ruta
+rollupOptions: {
+output: {
+manualChunks: {
+vendor: ['react', 'react-dom'],
+
+query: ['@tanstack/react-query'],
+
+4. Arquitectura de Componentes
+
+4.1 Atomic Design
+
+Santo Pegasus adopta la metodologia Atomic Design como sistema de clasificacion y
+organizacién de componentes. Esta metodologia, propuesta por Brad Frost, establece una
+jerarquia clara que facilita la reutilizacion, la consistencia visual y la comunicaci6n entre
+desarrolladores y disefiadores.
+
+#### 4.1.1 Atoms (Atomos)
+
+Son los bloques de construccién mas elementales de la interfaz. No pueden descomponerse en
+componentes mas pequefios sin perder su significado funcional. Los atomos no contienen légica
+de negocio ni estado derivado de APIs.
+
+Ejemplos: ‘Button’, ‘Input’, ‘Label’, ‘Icon’, ‘Badge’, ‘Avatar’, ‘Spinner’.
+
+“tsx
+
+// src/components/atoms/Button/Button.tsx
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+variant?: 'primary' | ‘secondary’ | 'destructive' | ‘ghost’;
+size?: 'sm' | 'md' | ‘Ig’;
+isLoading?: boolean;
+
+}
+
+export const Button = ({
+
+variant = ‘primary’,
+size = 'md',
+isLoading = false,
+children,
+disabled,
+---Props
+}: ButtonProps) => (
+<button
+className={cn(buttonVariants({ variant, size }))}
+disabled={disabled || isLoading}
+
+aria-busy={isLoading}
+{...props}
+>
+{isLoading ? <Spinner size="sm" /> : children}
+</button>
+HH
+
+#### 4.1.2 Molecules (Moléculas)
+
+Son combinaciones de dos 0 mas atomos que forman una unidad funcional con un propésito
+tinico y bien definido. Las moléculas pueden contener estado local simple (por ejemplo, el estado
+de foco de un campo de busqueda).
+
+Ejemplos: ‘SearchField’ (Input + Icon + Button), ‘FormField’ (Label + Input + ErrorMessage),
+“UserAvatarWithName’ (Avatar + Text).
+#### 4.1.3 Organisms (Organismos)
+
+Son secciones complejas y auténomas de la interfaz, formadas por la composicién de moléculas
+y atomos. Los organismos pueden contener légica de presentacién mas compleja y representan
+regiones reconocibles de la UI. Sin embargo, no deben realizar llamadas directas a APIs; esa
+responsabilidad pertenece a sus contenedores.
+
+Ejemplos: ‘ProductTable’, ‘NavigationHeader’, ‘UserProfileCard’, ‘CheckoutSummary’.
+#### 4.1.4 Templates (Plantillas)
+
+Definen la estructura y el layout de una pagina, estableciendo dénde se posicionarén los
+organismos, moléculas y dtomos. Los templates trabajan con datos de marcador de posicién
+(placeholder), son agndsticos del contenido real y representan el esqueleto visual de una ruta.
+
+Ejemplos: ‘DashboardTemplate’, ‘AuthTemplate’, ‘TwoColumnLayout’.
+#### 4.1.5 Pages (Paginas)
+Son la instanciacion concreta de un Template con datos reales. Las Pages son la capa de
+
+composicion final, donde se conectan los contenedores de datos con los componentes de
+
+presentacion. En proyectos Next.js, corresponden a los archivos dentro del directorio ‘app/" o
+
+‘pages/*.
+
+4.2 Componentes de Presentacién vs. Contenedores
+
+La separacion entre componentes de presentacién (dumb components) y contenedores (smart
+
+components) es una directriz de arquitectura de aplicacién obligatoria en Santo Pegasus.
+Caracteristica ‘Componente de Presentacién Contenedor
+
+Responsabilidad Renderizar Ul a partir de props Obtener datos, manejar estado
+
+Llamadas a API Nunca Via hooks de datos
+
+Estado global
+Testabilidad
+Reutilizacion
+
+Sufijo de archivo
+
+5. Gestion del Estado
+
+5.1 Taxonomia del Estado
+
+No accede
+
+Alta (solo recibe props)
+
+Alta
+
+“ProductCard.tsx’
+
+Accede via Zustand/Query
+
+Media (requiere mocks)
+
+Baja (acoplado al dominio)
+
+*ProductCardContainer.tsx’
+
+Antes de elegir una solucién de estado, es obligatorio clasificar la naturaleza del estado a
+
+gestionar:
+
+Tipo de Estado
+
+Estado Local
+
+Estado del Servidor
+Estado Global del Cliente
+Estado de URL
+
+Estado de Formulario
+
+Descripcién
+
+Ul efimera (modal abierto, tab
+activo)
+
+Datos provenientes de APIs
+Auth, preferencias, tema, carrito
+Filtros, paginacién, busqueda
+
+Inputs, validaciones, envio
+
+5.2 Zustand para Estado Global del Cliente
+
+Solucién Recomendada
+
+“useState’, ‘useReducer
+
+TanStack Query
+
+Zustand
+
+“useSearchParams’
+
+React Hook Form
+
+Zustand es la solucién esténdar para estado global que no proviene del servidor. Su adopcién
+
+esi
+
+##H## 5.2.1 Reglas de Uso de Zustand
+
+1. Una store por domi
+
+i justificada por su minimo boilerplate, ausencia de providers anidados y excelente
+integracién con TypeScript.
+
+io de negocio: No se debe crear una unica store global monolitica. Cada
+
+dominio (autenticaci6n, Ul global, carrito, notificaciones) debe tener su propia store.
+
+2. Interfaz tipada obligatoria: Toda store debe definir explicitamente su interfaz TypeScript.
+
+3. Acciones junto al estado: Las funciones que modi
+
+la propia store.
+
+4. Selectores para prevenir re-renders:
+
+store.
+
+“typescript
+
+// src/store/auth.store.ts
+
+interface AuthState {
+
+an el estado deben definirse dentro de
+
+jiempre utilice selectores especificos al consumir la
+
+user: User | null;
+accessToken: string | null;
+isAuthenticated: boolean;
+setUser: (user: User, token: string) => void;
+clearAuth: () => void;
+}
+export const useAuthStore = create<AuthState>((set) => ({
+user: null,
+accessToken: null,
+isAuthenticated: false,
+setUser: (user, accessToken) =>
+set({ user, accessToken, isAuthenticated: true }),
+clearAuth: () =>
+set({ user: null, accessToken: null, isAuthenticated: false }),
+»);
+// Uso con selector (previene re-renders innecesarios)
+const user = useAuthStore((state) => state.user);
+
+5.3 TanStack Query para Estado del Servidor
+
+TanStack Query (anteriormente React Query) es la solucién obligatoria para todo estado que
+proviene de APIs externas. Su adopcion elimina la necesidad de ‘useEffect’ para fetch de
+datos y proporciona cache, revalidacion, estados de carga y error de forma automatica.
+
+#### 5.3.1 Reglas de Uso de TanStack Query
+1. Nunca usar ‘useEffect’ para fetch de datos: Todo consumo de API debe realizarse a través de
+“useQuery’ o ‘useMutation’.
+
+2. Query Keys estructuradas: Las query keys deben seguir una estructura jerarquica
+consistente que refleje el dominio y los parametros.
+
+3. Hooks de dominio: Los calls a ‘useQuery’/'useMutation’ deben encapsularse en hooks de
+dominio, no usarse directamente en los componentes.
+
+“typescript
+
+// src/hooks/queries/useProducts.ts
+
+// Convencion de query keys: [entidad, operacién, ...parametros]
+export const productKeys = {
+
+all:
+
+‘products'] as const,
+lists: () => [...productKeys.all, ‘list'] as const,
+list: (filters: ProductFilters) => [...productKeys.lists(), filters] as const,
+
+detail: (id: string) => [...productKeys.all, ‘detail’, id] as const,
+ik
+export const useProducts = (filters: ProductFilters) =>
+useQuery({
+queryKey: productKeys.list(filters),
+queryFn: () => productService.getAll(filters),
+staleTime: 5 60 1000, // 5 minutos
+Yi
+export const useProduct = (id: string) =>
+useQuery({
+queryKey: productKeys.detail(id),
+queryFn: () => productService.getByld(id),
+enabled: !!id,
+7
+export const useCreateProduct = () => {
+const queryClient = useQueryClient();
+return useMutation({
+mutationFn: productService.create,
+onSuccess: () => {
+// Invalida el cache de la lista tras crear
+queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+h
+yn
+
+6. Consumo de APIs
+
+6.1Cliente HTTP Centralizado
+
+Todo consumo de las APIs de Santo Pegasus debe realizarse a través de una instancia
+centralizada de Axios, configurada con interceptores para el manejo automatico de
+autenticacion, refresh de tokens y errores globales. Queda terminantemente prohibido
+instanciar Axios directamente en componentes 0 hooks de dominio.
+
+6.2 Configuracion del Cliente Axios
+
+“typescript
+// src/lib/api/client.ts
+
+import axios, { Axiosinstance, InternalAxiosRequestConfig } from ‘axios';
+import { useAuthStore } from '@/store/auth.store';
+const apiClient: Axiosinstance = axios.create({
+baseURL: import.meta.env.VITE_API_BASE_URL,
+timeout: 15000,
+headers: {
+‘Content-Type’: 'application/json',
+7
+// Las cookies httpOnly son enviadas automaticamente
+withCredentials: true,
+YM
+// Interceptor de Request: inyecta el token JWT
+apiClient.interceptors.request.use(
+(config: InternalAxiosRequestConfig) => {
+const token = useAuthStore.getState().accessToken;
+if (token) {
+config.headers.Authorization = ‘Bearer ${token}’;
+}
+return config;
+7
+(error) => Promise.reject(error)
+i
+// Interceptor de Response: manejo de errores y refresh token
+apiClient.interceptors.response.use(
+(response) => response,
+async (error) => {
+const originalRequest = error.config;
+if (error.response?.status === 401 && !originalRequest._retry) {
+originalRequest._retry = true;
+try {
+// Refresh token via cookie httpOnly — no expone el token en JS
+const { data } = await axios.post('/auth/refresh', {}, { withCredentials: true });
+useAuthStore.getState().setUser(data.user, data.accessToken);
+originalRequest.headers.Authorization = ‘Bearer ${data.accessToken}’;
+return apiClient(originalRequest);
+} catch {
+useAuthStore.getState().clearAuth();
+
+window.location.href = '/login';
+}
+}
+|| Manejo global de errores por codigo HTTP
+handleHttpError(error.response?.status);
+return Promise.reject(error);
+
+6.3 Tipado Fuerte de Requests y Responses
+
+Todo servicio de dominio debe tipar explicitamente sus parametros de entrada y sus
+respuestas. Nunca se debe utilizar el tipo ‘any’ en operaciones de red.
+“typescript
+// src/lib/api/services/product.service.ts
+import { apiClient } from '@/lib/api/client';
+import type { Product, CreateProductDto, ProductFilters, PaginatedResponse } from
+'@/types/product.types';
+export const productService = {
+getAll: async (filters: ProductFilters): Promise<PaginatedResponse<Product>> => {
+const { data } = await apiClient.get<PaginatedResponse<Product>>('/products', {
+params: filters,
+yi
+return data;
+h
+getByld: async (id: string): Promise<Product> => {
+const { data } = await apiClient.get<Product>("/products/${id}’);
+return data;
+7
+create: async (payload: CreateProductDto): Promise<Product> => {
+const { data } = await apiClient.post<Product>('/products', payload);
+return data;
+h
+
+6.4 Manejo Global de Errores HTTP
+
+La funcién “handleHttpError* debe cubrir los cédigos de respuesta estindar y disparar
+
+notificaciones globales usando el sistema de toast del Design System.
+
+“typescript
+
+// src/lib/api/error-handler.ts
+
+import { toast } from '@/components/ui/toast';
+
+const HTTP_ERROR_MESSAGES: Record<number, string> = {
+401
+403: 'Usted no tiene permisos para realizar esta accién.',
+
+: ‘Solicitud invalida. Verifique los datos enviados.',
+
+404: 'El recurso solicitado no fue encontrado.',
+409: 'Conflicto: el recurso ya existe o esta en uso.",
+422: 'Los datos enviados no pudieron ser procesados.',
+500: 'Error interno del servidor. Contacte al soporte técnico.',
+503: 'Servicio temporalmente no disponible. Intente nuevamente.',
+h
+export const handleHttpError = (status?: number): void => {
+if (!status) return;
+const message = HTTP_ERROR_MESSAGES[status] ?? 'Ocurrié un error inesperado.';
+toast.error(message);
+}
+
+7. Estandares de Codigo
+
+7.1Nomenclatura de Archivos y Directorios
+
+La consistencia en la nomenciatura es obligatoria y sera verificada en el proceso de Code
+Review.
+
+Tipo de Artefacto Convencién Ejemplo
+Componentes React PascalCase *ProductCard.tsx’
+Custom Hooks camelCase con prefijo ‘use’ “useProductList.ts
+Funciones utilitarias camelCase “formatCurrency.ts"
+Servicios de API camelCase con sufijo *.service’ “product.service.ts’
+Stores Zustand camelCase con sufijo "store" “auth.store.ts"
+Tipos e Interfaces PascalCase con sufijo “types’ *product.types.ts”
+
+Constantes SCREAMING_SNAKE_CASE “APLENDPOINTS.ts”
+
+Archivos de Test Mismo nombre + ‘.test’ o ‘.spec’ “ProductCard.test.tsx
+
+Directorios kebab-case “product-card/"
+7.2 Estructura de Carpetas del Proyecto
+
+sre/
+app/ # Rutas (Next.js App Router) o pages (Vite)
+components/
+atoms/ # Componentes elementales del Design System
+molecules/ # Composiciones de dtomos
+organisms/ # Secciones complejas de UI
+templates/ # Layouts de pagina
+ui/ # Re-exportaciones de shadcn/ui
+hooks/
+queries/ # Hooks de TanStack Query por dominio
+mutations/ # Hooks de useMutation por dominio
+lib/
+api/ # Cliente Axios, servicios, error-handler
+utils/ # Funciones utilitarias puras
+store/ # Stores de Zustand
+types/ # Interfaces y tipos globales de TypeScript
+styles/ # Configuraciones globales de Tailwind y CSS
+tests/
+unit/ # Tests unitarios de utils y hooks
+components/ # Tests de componentes con Testing Library
+e2e/ # Tests Playwright
+constants/ # Constantes globales de la aplicacién
+
+7.3 ESLint — Configuraci6on Obligatoria
+
+El proyecto debe incluir una configuracién ESLint que extienda las siguientes reglas base:
+“json
+{
+"extends": [
+“eslint:recommended",
+“plugin:@typescript-eslint/recommended",
+“plugin:react-hooks/recommended",
+
+“plugin:jsx-ally/recommended",
+“plugin:import/typescript",
+"prettier"
+
+],
+
+"rules": {
+"@typescript-eslint/no-explicit-any": "error",
+"@typescript-eslint/no-unused-vars": "error",
+“react-hooks/exhaustive-deps": "error",
+
+“import/order' error", { "newlines-between": "always" }],
+
+“no-console’
+
+}
+
+warn", { “allow": ["error"] }]
+
+7.4 Prettier — Configuracion Estandar
+
+“json
+{
+
+"semi": true,
+
+“trailingComma":
+"singleQuote": true,
+“printWidth": 100,
+“tabWidth": 2,
+“arrowParens": "always"
+
+‘all",
+
+El formateo automdtico con Prettier debe ejecutarse como pre-commit hook mediante Husky +
+lint-staged, garantizando que ningiin cédigo mal formateado llegue al repositorio.
+
+8. Estilo y Design System
+
+8.1Tailwind CSS como Sistema de Tokens
+
+Tailwind CSS es el sistema de estilos esténdar de Santo Pegasus. Su filosofia utility-first
+elimina los problemas de especificidad de CSS, facilita la revision de estilos en Code Review y
+garantiza la consistencia visual a través de tokens predefinidos.
+
+La personalizacion del tema debe realizarse exclusivamente en ‘tailwind.config.ts', donde se definen los tc
+disefo del proyecto.
+
+“typescript
+
+// tailwind.config.ts
+
+import type { Config } from 'tailwindcss';
+={
+
+content: ['/sre/*/,{ts,tsx}"],
+
+theme: {
+
+const config: Confi
+
+extend: {
+colors: {
+brand: {
+50: '#fOF4ff',
+500: '#3bSbdb',
+900: '#1a237e',
+7
+neutral: {
+SO: '##8f9fa',
+500: '#868e96',
+900: '#212529',
+h
+success: '#2f9e44',
+warning: '#59f00',
+error: '#e03131',
+h,
+fontFamily: {
+sans: ['Inter', 'system-ui', 'sans-serif'],
+mono: [‘JetBrains Mono’, 'monospace'],
+h
+spacing: {
+'4.5': '1.125rem',
+‘4.5rem',
+
+h
+
+plugins: [require('tailwindcss-animate')],
+i
+export default config;
+
+8.2 shadcn/ui como Biblioteca de Componentes Base
+
+shadcn/ui es la biblioteca de componentes base estandar de Santo Pegasus. Sus componentes
+‘son instalados directamente en el repositorio del proyecto (no como dependencia de
+node_modules), lo que permite su personalizacion completa sin conflictos de versioning.
+
+#### 8.2.1 Reglas de Uso de shadcn/ui
+
+1. Los componentes de shadcn/ui deben residir en ‘src/components/ui/" y no deben ser
+modificados directamente. En su lugar, créese un componente envolvente en la capa de atomos
+que extienda el comportamiento deseado.
+
+2. Todo componente de shadcn/ui utilizado debe tener su accesibilidad verificada conforme a
+la Seccion 8.3.
+
+8.3 Accesibilidad — WCAG 2.1 Nivel AA
+
+La conformidad con el estandar WCAG 2.1 Nivel AA es un requisito no negociable en Santo
+Pegasus. Las siguientes directrices son de aplicacién obligatoria:
+
+Criterio Requisito Herramienta de Verifica
+Contraste de Color Ratio minimo 4.5:1 (texto normal), Figma Contrast Plugin, axe
+3:1 (texto grande) DevTools
+Navegacién por Teclado Todos los elementos interactivos Prueba manual +
+deben ser accesibles via Tab “esiint-plugin-jsx-atly"
+Textos Alternativos ‘alt’ descriptivo en todas las “eslint-plugin-jsx-atly"
+
+imagenes significativas
+
+Labels en Formularios Cada campo debe tener un “eslint-plugin-jsx-atly"
+*<label>’ asociado
+
+Roles ARIA Uso correcto de ‘role’, ‘aria-label’, axe DevTools, revisién en PR
+“aria-describedby"
+
+Gestién de Foco Modales y drawers deben atrapar Prueba manual
+el foco correctamente
+
+Skip Links Paginas con navegacién deben Revision en PR
+incluir "Saltar al contenido"
+
+La regla ‘plugin:jsx-atly/recommended’ en ESLint automatiza la deteccion de la mayoria de estas
+violaciones en tiempo de desarrollo.
+
+9. Gestion de Formularios
+
+9.1 React Hook Form + Zod
+
+La gestion de formularios en Santo Pegasus se basa en la combinacién de React Hook Form
+para el control del estado del formulario y Zod para la definicion del esquema de validacion.
+Esta combinacion garantiza una unica fuente de verdad para la légica de validacién, que
+ademas genera tipos TypeScript automaticamente.
+
+9.2 Patron de Implementacion
+
+“typescript
+// stc/types/product.types.ts
+import { z } from 'zod';
+export const createProductSchema = z.object({
+name: z.string()
+.min(3, 'El nombre debe tener al menos 3 caracteres.')
+.max(100, 'El nombre no puede superar 100 caracteres.'),
+price: z.number()
+-positive('El precio debe ser un valor positivo.')
+-multipleOf(0.01, 'El precio debe tener maximo dos decimales.'),
+categoryld: z.string().uuid('Seleccione una categoria valida.'),
+description: z.string().max(500).optional(),
+Yi
+// El tipo se infiere automaticamente del schema
+export type CreateProductDto = z.infer<typeof createProductSchema>;
+
+tsx
+// src/components/organisms/ProductForm/ProductForm.tsx
+
+import { useForm } from 'react-hook-form';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { createProductSchema, CreateProductDto } from '@/types/product.types';
+import { useCreateProduct } from '@/hooks/mutations/useCreateProduct';
+
+export const ProductForm =
+
+=>{
+const { mutate: createProduct, isPending } = useCreateProduct();
+const {
+register,
+handleSubmit,
+formState: { errors },
+} = useForm<CreateProductDto>({
+resolver: zodResolver(createProductSchema),
+yn
+
+const onSubmit = (data: CreateProductDto) => createProduct(data);
+return (
+<form onSubmit={handleSubmit(onSubmit)} noValidate>
+<FormField
+label="Nombre del Producto"
+error={errors.name?.message}
+>
+<Input
+{...register(‘name')}
+aria-describedby={errors.name ? 'name-error' : undefined}
+I>
+</FormField>
+<Button type="submit" isLoading={isPending}>
+Crear Producto
+</Button>
+</form>
++H
+i
+
+9.3 Reglas de Validacioén
+
+1. Validacion en el cliente es una mejora de UX, no de seguridad. Los schemas Zod del
+front-end deben ser equivalentes a las validaciones del back-end (Bean Validation en Java),
+pero nunca los reemplazan.
+
+2. Mensajes de error en espaiiol y orientados al usuario, no al desarrollador.
+
+3. ‘noValidate’ en todos los formularios: Deshabilitar la validacién nativa del navegador para
+mantener control total sobre el feedback de error.
+
+10. Estrategia y Cobertura de Pruebas
+
+La calidad del cédigo de front-end debe ser asegurada por un enfoque multifacético que cubra
+la logica de negocio, el comportamiento de los componentes y los flujos criticos del usuario.
+
+10.1 Cobertura Minima Obligatoria
+
+La cobertura minima de 80% en pruebas unitarias es obligatoria y verificada automaticamente
+en el pipeline de Cl/CD. El build falla si la cobertura cae por debajo de este umbral.
+
+10.2 Piramide de Pruebas
+
+#### 10.2.1 Pruebas Unitarias — Vitest
+
+Enfocadas en ldgica pura: funciones utilitarias, transformadores de datos, schemas Zod y hooks
+de negocio aislados de la UI.
+“typescript
+// src/lib/utils/formatCurrency.test.ts
+import { describe, it, expect } from 'vitest';
+import { formatCurrency } from './formatCurrency';
+describe('formatCurrency', () => {
+it(‘formatea correctamente un valor positivo en BRL', () => {
+expect(formatCurrency (1999.99, 'BRL')).toBe('R$ 1.999,99');
+yn
+it(‘formatea cero como R$ 0,00", () => {
+expect(formatCurrency(0, 'BRL')).toBe('R$ 0,00");
+Yi
+it(lanza error con valor negativo', () => {
+expect(() => formatCurrency(-1, 'BRL’)).toThrow('Valor invalido');
+Ys
+Yi;
+
+#### 10.2.2 Pruebas de Componentes — Testing Library
+
+Enfocadas en el comportamiento del usuario, no en los detalles de implementacidn. Las pruebas
+deben consultar elementos por roles ARIA, labels y texto visible, jamas por selectores CSS 0 IDs
+internos.
+
+“tsx
+// src/components/organisms/ProductForm/ProductForm.test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ProductForm } from './ProductForm';
+describe('ProductForm', () => {
+it('muestra error de validacion al enviar nombre vacio', async () => {
+render(<ProductForm />);
+await userEvent.click(screen.getByRole('button', { name: /crear producto/i }));
+expect(await screen.findByText(/al menos 3 caracteres/i)).toBelnTheDocument();
+YM
+it(‘llama a onSubmit con datos validos', async () => {
+const mockCreate = vi.fn();
+render(<ProductForm onSubmit={mockCreate} />);
+await userEvent.type(screen.getByLabelText(/nombre/i), ‘Producto de prueba’);
+
+await userEvent.click(screen.getByRole(‘button’, { name: /crear producto/i }));
+await waitFor(() => expect(mockCreate).toHaveBeenCalledOnce());
+yn
+Yi;
+
+##H## 10.2.3 Pruebas E2E — Playwright
+Obligatorias para los flujos criticos del negocio. Ejecutadas en el pipeline de Cl contra un
+ambiente de Staging.
+Flujos que requieren cobertura E2E obligatoria:
++ Autenticacién completa (login, refresh, logout)
+« Flujo de checkout / accion principal del negocio
+* Operaciones CRUD del recurso central del sistema
+« Recuperacién de contrasefia
+“typescript
+// src/tests/e2e/auth.spec.ts
+import { test, expect } from '@playwright/test';
+test.describe('Autenticacién', () => {
+test('usuario puede iniciar sesién con credenciales validas', async ({ page }) => {
+await page.goto('/login');
+await page.getByLabel('Correo electrénico’).fill('‘usuario@santopegasus.com');
+await page.getByLabel('Contrasefia’).fill('Senha@Segura123');
+await page.getByRole('button’, { name: /iniciar sesién/i }).click();
+await expect(page).toHaveURL('/dashboard');
+await expect(page.getByRole('heading', { name: /bienvenido/i })).toBeVisible();
+Wi
+yn
+
+10.3 Configuracion de Vitest
+
+“typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+export default defineConfig({
+
+plugins: [react()],
+
+test: {
+
+globals: true,
+
+environment: ‘jsdom',
+setupFiles: './src/tests/setup.ts',
+coverage: {
+provider: 'v8',
+thresholds: {
+lines: 80,
+functions: 80,
+branches: 80,
+statements: 80,
+h,
+exclude:
+
+'src/components/ui/', 'src/types/'],
+
+11. Proceso de Code Review
+
+11.1 Reglas para el Autor del PR
+
+1. Tamafio maximo del PR: Todo Pull Request debe tener un maximo de 400 lineas de codigo
+modificado, excluyendo archivos de configuracién, tipos generados automaticamente y
+assets. PRs que excedan este limite deben ser divididos en unidades légicas mas pequefias.
+
+2. Auto-revisién obligatoria: El autor debe revisar su propio PR en la interfaz de GitHub/GitLab
+antes de solicitar revision, asegurandose de que no haya cédigo de debug, ‘console.log’ 0
+“TODO no documentados.
+
+3. Template del PR: Todo PR debe completar el template oficial (ver 11.3).
+
+4. Cl verde: No se permite solicitar revision con el pipeline de Cl fallando.
+
+5. Screenshots 0 videos: Toda alteracién visual debe incluir capturas de pantalla comparativas
+(antes/después) o una grabacion de la interaccion.
+
+11.2 Reglas para el Revisor
+
+1. Aprobaciones requeridas: Todo Pull Request exige al menos 2 aprobaciones de miembros
+Senior o Semi-Senior antes del merge, siguiendo el mismo criterio establecido en la Guia de
+Ingenieria Back-end.
+
+2. Tono y Etiqueta: La comunicacién debe estar siempre pautada por la empatia y la educacion.
+Los comentarios deben estar orientados exclusivamente a la mejora del codigo. Se recomienda
+el uso de preguntas sugestivas: ";Consideraste usar ‘useMemo’ aqui para evitar el
+recalculo?" en lugar de imperativos como "Usa ‘useMemo"™".
+
+3. Criterios de Re
+
+én Front-end: El revisor debe validar:
+
+Criterio Descripcién
+
+Correctitud El componente se comporta como se espera en todos
+los estados (loading, error, vacio, datos)
+
+Accesibilidad Uso correcto de roles ARIA, labels, contraste y
+navegacién por teclado
+
+Performance Ausencia de renders innecesarios, uso correcto de
+“useMemo’/‘useCallback
+
+Seguridad Sin datos sensibles en localStorage, sin XSS, sin
+“dangerouslySetinnerHTML’ no sanitizado
+
+Tipado ‘Ausencia de ‘any’, tipos explicitos en todas las
+funciones publicas
+
+Pruebas Cobertura adecuada de los casos feliz, error y borde
+
+Gula de Ingenieria Conformidad con las directrices de este documento
+
+11.3 Template Oficial del PR
+
+*“markdown
+Descripcion
+
+<!-- Qué cambios fueron realizados en este PR?
+Motivaci6n
+
+<!-- gPor qué estos cambios son necesarios? Referencia al ticket/issue. -->
+Closes: #[numero del issue]
+Cémo Probar
+
+<!-- Instrucciones paso a paso para validar los cambios manualmente. -->
+1.
+
+a
+
+3.
+
+Screenshots
+
+<!-- Para cambios visuales, incluir capturas antes/después.
+
+Antes Después
+
+img img
+
+Checklist del Autor
+
++ [] Cédigo revisado por el propio autor antes de solicitar review
+« [] Pruebas unitarias/componentes afadidas o actualizadas
+
++ [] Cobertura de pruebas = 80%
+
++ [] Accesibilidad verificada (teclado + contraste)
+
++ [] Sin ‘console.log’ ni codigo de debug
+
+¢ [] Sin ‘any’ en TypeScript
+
+« [] Pipeline de Cl pasando (lint + tests + build)
+
++ [] PR tiene menos de 400 lineas modificadas
+
+* [] Screenshots incluidos (si aplica)
+
+12. Control de Versiones
+
+12.1 GitFlow
+
+Santo Pegasus adopta el modelo GitFlow de forma idéntica a lo establecido en la Guia de
+Ingenieria Back-end, garantizando la coherencia del proceso de desarrollo entre todas las
+capas del sistema.
+
+Rama Propésito Merge Origin Merge Target
+
+“main Cédigo en produccién “release/", “hotfix/" -
+
+‘develop’ Integracién de features “feature/’, ‘fix/" “release/”
+
+“feature/’ Nuevas funcionalidades "develop" ‘develop’
+
+fix!’ Correcciones no ‘develop’ ‘develop’
+urgentes
+
+“release/” Preparacién para deploy “develop ‘main’ + “develop
+
+“hotfix/’ Correcciones urgentes en “main ‘main’ + “develop
+produccién
+
+12.2 Conventional Commits
+
+El uso de Conventional Commits es obligatorio en todos los proyectos del Chapter de
+Front-end, siguiendo la misma especificacién adoptada en el back-end. El formato es validado
+automaticamente por Commitlint configurado como commit-msg hook en Husky.
+
+<tipo>(<escopo>): <descripcién corta en imperativo>
+[cuerpo opcional]
+[footer opcional: BREAKING CHANGE, Closes #123]
+
+Tipos permitidos:
+
+Tipo Uso
+
+‘feat Nueva funcionalidad visible para el usuario
+
+fix’ Correccién de bug
+
+“refactor Refactorizaci6n sin cambio de comportamiento
+“style” Cambios de formato/estilos sin impacto en légica
+test Adicién 0 correccién de pruebas
+
+“chore" Tareas de mantenimiento (deps, config)
+
+‘docs’ Documentacién
+
+“perf” Mejoras de performance
+
+‘er Cambios en pipelines de Ci/CD
+
+Ejemplos:
+
+feat(product): ahade filtro por categoria en listado de productos
+
+fix(auth): corrige loop infinito en refresh token cuando el server retorna 401
+perf(dashboard): implementa lazy loading en tabla de transacciones
+test(product-form): afade tests para estado de error en formulario de creacion
+
+13. Performance y Web Vitals
+
+13.1 Web Vitals como Criterios de Calidad
+
+Las métricas Core Web Vitals de Google son criterios de aceptacién técnica en Santo Pegasus.
+Ninguna funcionalidad puede ser desplegada a produccion si degrada significativamente estas
+métricas por debajo de los umbrales establecidos.
+
+Métrica Descripcion Umbral "Good" Umbral Maximo.
+
+LCP (Largest Contentful Tiempo de carga del 5258 =4.0s
+Paint) elemento mas grande
+visible
+FID (First Input Delay) / Latencia de respuestaa = 100ms = 300ms
+INP la primera interaccién
+CLS (Cumulative Layout _ Estabilidad visual del s01 $0.25
+Shift) layout durante la carga
+TTFB (Time to First Byte) | Tiempo de respuestadel | = 800ms 518s
+servidor
+FCP (First Contentful Primer renderizado de 518s =3.0s
+Paint) contenido
+
+Las métricas deben ser monitoreadas en producci6n utilizando herramientas como Vercel
+Analytics, Google Search Console o Datadog RUM.
+
+13.2 Lazy Loading y Code Splitting
+
+Code splitting es obligatorio para rutas de la aplicacién. Ninguna ruta debe ser incluida en el
+bundle principal (initial chunk).
+“tsx
+// Correcto: lazy loading por ruta
+import { lazy, Suspense } from 'react';
+const ProductsPage = lazy(() => import('@/app/products/ProductsPage'));
+const DashboardPage = lazy(() => import('@/app/dashboard/DashboardPage’));
+const SettingsPage = lazy(() => import('@/app/settings/SettingsPage'));
+export const AppRouter = () => (
+
+<Suspense fallback={<PageLoadingSpinner />}>
+
+<Routes>
+
+products" element={<ProductsPage />} />
+
+lashboard" element={<DashboardPage />} />
+<Route path="/settings" element={<SettingsPage />} />
+</Routes>
+</Suspense>
+HH
+
+13.3 Optimizacion de Imagenes
+
++ Formato: Usar siempre WebP como formato primario, con fallback para JPEG/PNG.
+
++ Dimensiones: Nunca servir imagenes con dimensiones mayores que su tamajio de
+display.
+
++ ‘loading="lazy"’: Obligatorio en todas las imagenes que no estén en el viewport inicial.
+
++ ‘width’ y ‘height’ expli Obligatorio para prevenir CLS durante la carga.
+
++ Next.js Image: En proyectos Next.js, el componente “<Image />" es obligatorio. Queda
+prohibido el uso de la etiqueta “<img>* nativa para imagenes de contenido.
+
+13.4 Memoizacion y Prevencion de Re-renders
+
+El uso de ‘React.memo’, ‘useMemo’ y ‘useCallback’ debe ser justificado y medido, no aplicado
+de forma prematura. La regla es: primero identificar el problema con las DevTools de React
+Profiler, luego aplicar la memoizacion.
+
+“tsx
+/| Uso justificado: componente hijo que recibe callback y re-renderiza en cascada
+const ProductRow = React.memo(({ product, onSelect }: ProductRowProps) => (
+<tr onClick={() => onSelect(product.id)}>
+<td>{product.name}</td>
+</tr>
+// En el padre, el callback debe ser estabilizado
+const handleSelect = useCallback((id: string) => {
+setSelectedProductld(id);
+}, []); // sin dependencias, siempre la misma referencia
+
+14. Seguridad en el Front-end
+
+14.1 Filosofia de Seguridad
+
+El front-end opera en un entorno inherentemente no confiable: el navegador del usuario. Toda
+la logica de autorizacion y validacién de datos sensibles debe residir en el back-end. El
+front-end implementa medidas de seguridad como defensa en profundidad, nunca como unica
+linea de proteccidn.
+
+14.2 Proteccion contra XSS (Cross-Site Scripting)
+
+Practica Regla
+
+“dangerouslySetinnerHTML’ Prohibido salvo en casos excepcionales documentados
+con sanitizacién previa via DOMPurify
+
+Contenido dinamico del usuario. Siempre renderizado como texto ('{variable}), nunca
+como HTML
+
+URLs dindmicas Validar que comienzan con “https://" antes de usarlas
+en ‘href’ 0 ‘src’
+
+Cabecera CSP El servidor debe enviar una Content Security Policy
+estricta
+
+tsx
+
+/| Prohibido: vulnerable a XSS
+
+<div dangerouslySetinnerHTML={{ __html: userProvidedContent }} />
+/ Correcto: con sanitizacion
+
+import DOMPurify from 'dompurify';
+
+const safeHtml = DOMPurify.sanitize(userProvidedContent);
+
+<div dangerouslySetInnerHTML={{ _html: safeHtml }} />
+
+/] Mejor opcidn: renderizar como texto siempre que sea posible
+<div>{userProvidedContent}</div>
+
+14.3 Gestion Segura de Tokens de Autenticacion
+
+El almacenamiento de tokens de autenticacién sigue una politica estricta en Santo Pegasus:
+
+Método de Almacenamiento Uso Justificativa
+
+“httpOnly’ Cookie Refresh Token Inaccesible para JavaScript;
+protege contra XSS
+
+Memoria (Zustand store) ‘Access Token (corta duracién) No persiste entre sesiones;
+limpiado al cerrar tab
+
+“localStorage" Prohibido para tokens Accesible por cualquier script;
+vulnerable a XSS
+
+*sessionStorage Prohibido para tokens sensibles Accesible por JavaScript; inseguro
+
+contra XSS
+14.4 Protecci6n contra CSRF
+
+« Las cookies de sesién deben ser emitidas por el back-end con los atributos
+“SameSite=Strict’ o ‘SameSite=Lax’ y “Secure’.
+
+« Para operaciones mutantes (POST, PUT, DELETE), el back-end debe validar el origen de la
+peticion.
+
++ En formularios que requieran proteccidén adicional, se debe usar el patron de CSRF Token
+generado por el servidor.
+
+14.5 Prin
+
+de Minimo Privilegio en el Front-end
+
++ No exponer informacion sensible en URLs: IDs de usuarios, tokens 0 datos de sesién no
+deben aparecer en parametros de query string.
+
++ Feature flags por rol: Los elementos de UI para acciones privilegiadas deben ocultarse
+para usuarios sin el rol correspondiente. Sin embargo, la autorizacién real siempre debe
+
+verificarse en el back-end.
+
++ Logging seguro: Nunca registrar en ‘console.error’ informacién sensible como tokens,
+
+datos personales 0 respuestas completas de la API.
+
+15. Cl/CD Front-end
+
+15.1 Filosofia del Pipeline
+
+El pipeline de Cl/CD del front-end debe garantizar que ningun cédigo que falle en lint, pruebas
+0 build llegue a produccion. La automatizacién es la primera linea de control de calidad,
+
+complementando el proceso de Code Review humano.
+
+15.2 Etapas del Pipeline
+
+El pipeline de Cl/CD se compone de las siguientes etapas ejecutadas secuencialmente:
+
+LINT& DP UNIT& DP BUILD B® E2Een ® DEPLOY
+TYPECHECK COMPONENT DOCKER STAGING
+TESTS
+
+15.3 Pipeline GitHub Actions — Definicion Completa
+
+“yam
+
+-github/workflows/ci.yml
+
+name: Cl/CD — Front-end
+on:
+push:
+branches: [main, develop]
+pull_request:
+branches: [develop]
+jobs:
+lint-and-typecheck:
+name: Lint & TypeCheck
+
+PROD
+
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+with:
+node-version: '20'
+cache: 'npm'
+- run: npm ci
+- run: npm run lint
+- run: npm run typecheck
+test:
+name: Unit & Component Tests
+needs: lint-and-typecheck
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+with:
+node-version: '20'
+cache: 'npm'
+- run: npm ci
+- run: npm run test:coverage
+- name: Upload Coverage Report
+uses: codecov/codecov-action@v4
+build:
+name: Docker Build
+needs: test
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- name: Build Docker Image
+run: docker build -t santopegasus/${{ github.event.repository.name }}:${{ github.sha }} .
+- name: Push to Registry
+if: github.ref == 'refs/heads/develop' || github.ref
+
+‘refs/heads/main'
+run: |
+docker push santopegasus/${{ github.event.repository.name }}:${{ github.sha }}
+e2e:
+
+name: E2E Tests (Playwright)
+needs: build
+
+runs-on: ubuntu-latest
+
+if: github.ref
+steps:
+
+‘refs/heads/develop' || github.ref == 'refs/heads/main'
+
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+with: { node-version: '20', cache: 'npm' }
+- run: npm ci
+- run: npx playwright install --with-deps
+- run: npm run test:e2e
+env:
+PLAYWRIGHT_BASE_URL: ${{ secrets.STAGING_URL }}
+- uses: actions/upload-artifact@v4
+if: failure()
+with:
+name: playwright-report
+path: playwright-report/
+deploy-staging:
+name: Deploy to Staging
+needs: e2e
+if: github.ref
+runs-on: ubuntu-latest
+
+'refs/heads/develop'
+
+steps:
+- name: Deploy to Staging Environment
+run: echo “Deploy automatizado al ambiente de Staging"
+deploy-production:
+
+name: Deploy to Production
+needs: e2e
+if: github.ref
+runs-on: ubuntu-latest
+
+'refs/heads/main'
+
+environment: production
+steps:
+- name: Deploy to Production
+run: echo "Deploy a Produccién con aprovacion manual requerida"
+
+15.4 Dockerfile para Front-end
+
+El uso de Docker es obligatorio para garantizar la inmutabilidad del artefacto entre los
+ambientes de Staging y Produccién, siguiendo el mismo principio establecido en la Guia de
+Ingenieria Back-end.
+
+*“dockerfile
+
+Dockerfile — Multi-stage build para SPA con Vite
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm ci --frozen-lockfile
+
+COPY..
+
+RUN npm run build
+
+Stage de produccion con Nginx
+
+FROM nginx:1.25-alpine AS production
+Copia la configuracion de Nginx para SPA (manejo
+de rutas client-side)
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+Copia el build generado por Vite
+
+COPY --from=builder /app/dist /usr/share/nginx/htm|
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+“nginx
+
+nginx.conf — Configuraci6n para SPA React
+
+server {
+listen 80;
+root /usr/share/nginx/htm|;
+index index.html;
+# Redirecciona todas las rutas al index.html (client-side routing)
+location / {
+try_files $uri $uri/ /index.htm|;
+
+}
+# Cabeceras de seguridad
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self*
+‘unsafe-inline';" always;
+# Cache de assets estaticos (Vite genera hashes en los nombres)
+location ~ \.(js|css|pngl|jpg|ipeg|webp|svglico|woff2)$ {
+expires ty;
+add_header Cache-Control "public, immutable";
+
+15.5 Variables de Entorno en el Front-end
+
+Las variables de entorno en proyectos Vite deben seguir el prefijo ‘VITE_’ para ser expuestas
+al cliente. En proyectos Next.js, el prefijo es ‘NEXT_PUBLIC_”.
+
+Reglas obligatorias:
++ Nunca incluir secretos en variables de entorno del front-end. Toda variable ‘VITE_’ 0
+
+“NEXT_PUBLIC_" es embebida en el bundle y visible para cualquier usuario.
+* El archivo ‘.env.local’ debe estar obligatoriamente listado en *.gitignore’.
+
+« Las variables de entorno de Staging y Produccién deben ser gestionadas en la plataforma de
+CI/CD (GitHub Actions Secrets, AWS Secrets Manager), nunca en archivos commiteados al
+repositorio.
+
+“bash
+.env.example — Archivo de referencia (commitado
+
+al repositorio)
+
+VITE_API_BASE_URL=https://api.santopegasus.com
+
+VITE_APP_ENV=production
+
+VITE_LSENTRY_DSN=
+
+-env.local — Configuracion local del desarrollador
+
+(en .gitignore)
+
+VITE_API_BASE_URL=http://localhost:8080
+VITE_APP_ENV=development
+
+Apéndice A — Checklist de Nuevo Proyecto
+
+Utilice este checklist al iniciar un nuevo proyecto front-end en Santo Pegasus:
+* [] Stack tecnolégico configurado conforme a la Seccién 3
+
+« [] Estructura de carpetas conforme a la Seccion 7.2
+
+« [] ESLint y Prettier configurados con las reglas estandar (Seccidn 7.3 y 7.4)
+
+« [] Husky + lint-staged + Commitlint configurados
+
++ [] Cliente Axios centralizado con interceptores (Seccién 6.2)
+
+* [] TanStack Query Provider configurado en la raiz de la aplicacion
+« [] Stores Zustand organizados por dominio (Seccién 5.2)
+
++ [] Tailwind CSS con tokens de disefo personalizados (Secci6n 8.1)
+
+* [] shadcn/ui instalado y componentes base en ‘src/components/ui/"
+
++ [] Vitest configurado con umbral de cobertura del 80% (Seccién 10.3)
+
+« [] Playwright configurado para E2E
+
++ [] Dockerfile multi-stage creado (Secci6n 15.4)
++ [] Pipeline de Cl/CD configurado (Seccién 15.3)
+* [] Variables de entorno documentadas en *.env.example”
+
+« [] ‘README.md' con instrucciones de setup local
+
+Apéndice B — Glosario
+
+Término
+
+Atomic Design
+
+Bundle
+
+cis
+
+Code Splitting
+
+csp
+
+DTO
+
+E2E
+
+Definicién
+
+Metodologia de organizacién de componentes en
+atomos, moléculas, organismos, templates y paginas
+
+Archivo JavaScript resultante del proceso de build,
+enviado al navegador
+
+Cumulative Layout Shift — métrica de estabilidad visual
+del layout
+
+‘Técnica de divisién del bundle en chunks cargados
+bajo demanda
+
+Content Security Policy — politica de seguridad HTTP
+que restringe recursos cargables
+
+Data Transfer Object — objeto que define la forma de
+los datos en la comunicacién con la API
+
+End-to-End — pruebas que simulan el flujo completo
+del usuario en el navegador real
+
+FCP
+
+FID/INP
+
+HMR
+
+httpOnly Cookie
+
+JWT
+
+Lep
+
+RSC
+
+ssc
+
+SSR
+
+XSS
+
+First Contentful Paint — primer momento en que el
+browser renderiza contenido
+
+First Input Delay / Interaction to Next Paint — métricas
+de responsividad a la interaccién
+
+Hot Module Replacement — actualizacién de médulos
+en tiempo real durante el desarrollo
+
+Cookie inaccesible para JavaScript, protegida contra
+xSs
+
+JSON Web Token — estandar de token de
+autenticacién stateless
+
+Largest Contentful Paint — métrica de velocidad de
+carga del contenido principal
+
+React Server Components — componentes
+renderizados en el servidor sin JS en el cliente
+
+Static Site Generation — pre-renderizacién de paginas
+en build time
+
+Server-Side Rendering — renderizacién de paginas en
+el servidor por request
+
+Cross-Site Scripting — vulnerabilidad de inyeccién de
+scripts maliciosos
+
+Santo Pegasus Soluciones — Guta Oficial de Ingenieria Front-end v1.0.0 — Octubre 2025
+
+Departamento de Ingenieria de Software / Chapter de Front-end
+
+Este documento es revisado peric
+
+“eng-guidelines*.
+
+licamente. Consulte siempre la versin mds reciente en el repositorio

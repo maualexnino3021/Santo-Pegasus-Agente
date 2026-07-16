@@ -1,0 +1,9 @@
+# Dependencias de RUNTIME (las que Render instala para servir la app).
+# La extracción de PDF/OCR es un paso offline: ver requirements-ingest.txt
+flask==3.0.3
+gunicorn==22.0.0
+anthropic==0.34.2
+openai==1.51.0
+scikit-learn==1.5.1
+numpy==1.26.4
+python-dotenv==1.0.1

@@ -1,0 +1,1685 @@
+Manual de Onboarding para Nuevos
+Desarrolladores
+
+Santo Pegasus Soluciones
+
+> Version del Documento: 1.0.0
+
+> Fecha de Publicacién: Junio 2026
+
+> Departamento Responsable: People & Engineering — Chapter de Back-end y Front-end
+> Clasificacion: Interno — Confidencial
+
+> Proxima Revision: Diciembre 2026
+
+TABLA DE CONTENIDOS
+
+1. Bienvenida Institucional y Cultura de la Empresa
+2. Estructura del Equipo
+
+3. Dia 1— Accesos y Cuentas
+
+4. Configuracion del Entorno Local — Back-end
+
+5. Configuracion del Entorno Local — Front-end
+
+6. Guia de Git y Flujo de Trabajo
+
+7. Primeras Tareas Sugeridas — Plan 30/60/90 Dias
+8. Herramientas y Sistemas Internos
+
+9. Proceso de Code Review
+
+10. Beneficios y Politicas de RRHH
+
+11. Seguridad desde el Primer Dia
+
+12. Checklist de Onboarding — Semana 1
+
+13. Contactos Utiles
+
+14, Preguntas Frecuentes del Onboarding
+
+15. Disposiciones Finales y Revision del Documento
+
+SECCION 1— BIENVENIDA INSTITUCIONAL Y CULTURA DE LA
+EMPRESA
+
+1.1 Mensaje de Bienvenida
+
+Bienvenido o bienvenida a Santo Pegasus Soluciones.
+
+Si estas leyendo estas lineas, es porque pasaste por un proceso selectivo riguroso,
+demostraste tus capacidades técnicas y — lo que es igualmente importante — conectaste con
+los valores y la forma de trabajar de nuestro equipo. Eso no es un detalle menor. En Santo
+Pegasus, contratamos personas, no solo perfiles tecnicos.
+
+Este manual fue disefiado para que tu primera semana sea productiva, clara y acogedora.
+Nuestro objetivo es que al finalizar el séptimo dia ya tengas tu entorno configurado, hayas
+
+conocido a tu equipo, comprendas nuestro flujo de trabajo y estés listo para comenzar a
+contribuir con cédigo real. No te vamos a dejar solo: tendras un buddy asignado (un desarrollador
+Senior o Pleno) que acompajiara tus primeros 30 dias.
+
+Leé este documento con calma, segui los pasos en orden y, ante cualquier duda, recorda:
+preguntar no es sefial de debilidad, es sefial de inteligencia.
+
+iBienvenido al equipo!
+
+— La Direccién de Ingenieria, Santo Pegasus Soluciones
+
+1.2 Nuestra Mision
+
+> "Construir soluciones de software que transformen negocios reales, con cédigo que
+perdure, equipos que crezcan y tecnologia que respete a las personas.
+
+Santo Pegasus Soluciones es una empresa de tecnologia especializada en el desarrollo de
+productos digitales, plataformas SaaS e integraciones complejas para clientes de diferentes
+industrias. Nuestra fortaleza esta en la combinacién de excelencia técnica con un enfoque
+humano: entendemos el negocio de nuestros clientes antes de escribir la primera linea de
+codigo.
+
+1.3 Nuestros Valores
+
+Estos no son palabras en una pared. Son los criterios reales con los que tomamos decisiones,
+evaluamos el trabajo y construimos la cultura del dia a dia:
+
+# Valor Significado Practico
+
+1 Artesania del Codigo Escribimos cédigo como si el
+préximo desarrollador que lo lea
+fuera alguien que sabemos que nos
+vaa pedir explicaciones. Claridad
+antes que astucia.
+
+2 Honestidad Técnica Si algo no esta bien hecho, lo
+decimos. Si cometemos un error, lo
+admitimos. No existe el "esta mas 0
+menos funcionando" en
+produccién.
+
+3 Aprendizaje Continuo La tecnologia cambia. Nuestra
+curiosidad no puede parar.
+Invertimos en cursos,
+certificaciones y tiempo de estudio
+como parte del trabajo.
+
+4 Colaboracién sin Ego El cédigo no tiene duefio. Las ideas
+se defienden con argumentos, no
+con jerarquia. Un Junior puede
+tener raz6n frente a un Senior, y
+eso esta bien.
+
+5 Entrega con Responsabilidad Cumplir los plazos importa. Pero
+cumplirlos sin comprometer la
+calidad importa mas. Si hay un
+conflicto, comunicamos con
+anticipacién.
+
+6 Diversidad e Inclusién Construimos mejores productos
+cuando nuestro equipo refleja la
+diversidad del mundo real. Todo
+tipo de discriminacién es
+inaceptable.
+
+7 Impacto sobre Volumen Preferimos 10 Pull Requests bien
+hechos a 30 apresurados. La
+métrica que importa es el valor
+entregado, no las lineas escritas.
+
+1.4 Cémo Trabajamos
+
+Santo Pegasus opera en un modelo hibrido. La mayoria del equipo trabaja de manera remota,
+con encuentros presenciales opcionales (o requeridos en casos especificos de dinamicas de
+equipo o retros trimestrales). Las politicas exactas de home office se detallan en la Seccién 10.
+
+Nuestro flujo de trabajo esta basado en metodologia agil (Scrum adaptado):
++ Sprints de 2 semanas con planning, daily, refinement y retrospectiva.
++ Daily asincrona por Slack (canal del squad) cuando no hay reunion sincrénica agendada.
+
++ Revision de sprint con demostraci6n de las fun
+los miembros del equipo.
+
+nalidades entregadas, abierta a todos
+
++ Retrospectiva con espa
+
+La comunicaci6n interna ocurre principalmente por Slack. Las decisiones técnicas se
+documentan en Confluence. El tracking de trabajo esta en Jira. El codigo vive en GitHub
+(organizacion privada).
+
+seguro para mejoras, frustraciones y celebraciones.
+
+1.5 Nuestra Pila Tecnoldgica Principal
+
+Para que tengas el mapa completo desde el primer dia:
+
+Area Tecnologias
+
+Back-end
+
+Front-end
+
+Bases de datos
+
+Bases Vectoriales
+
+Inteligencia Artificial
+
+Infraestructura Cloud
+
+Contenedorizacion
+
+cyeD
+
+Observabilidad
+
+Calidad de Cédigo
+
+Control de Versiones
+
+Java 17+, Spring Boot 3+, Spring Security, Spring Data
+JPA
+
+React 18+, TypeScript, Vite, Tailwind CSS
+PostgreSQL, MongoDB, Redis
+
+Pinecone, Qdrant
+
+LangChain (RAG), integracién con LLMs externos
+AWS (RDS, SES, SQS, Secrets Manager, EC2/ECS)
+Docker, Docker Compose
+
+GitHub Actions
+
+SLF4J/Logback, Prometheus, Datadog
+SonarQube, JUnit 5, Mockito, Testcontainers
+
+Git, GitFlow, Conventional Commits
+
+SECCION 2 — ESTRUCTURA DEL EQUIPO
+
+2.1 Organizacion por Chapters
+
+Santo Pegasus organiza a sus desarrolladores en Chapters (agrupat
+
+nes por especialidad
+
+técnica) y en Squads (equipos multidisciplinarios por producto/cliente). Esta estructura
+permite que cada persona tenga una comunidad técnica de referencia (el Chapter) y a la vez
+trabaje en contextos de negocio concretos (el Squad).
+
+Santo Pegasus Soluciones
+
+Chapter de Back-end
+Tech Lead de Back-end
+Developers Senior (Back-end)
+Developers Pleno / Semi-Senior (Back-end)
+Developers Junior (Back-end)
+
+Chapter de Front-end
+Tech Lead de Front-end
+Developers Senior (Front-end)
+
+Developers Pleno / Semi-Senior (Front-end)
+Developers Junior (Front-end)
+
+Chapter de DevOps / SRE
+Tech Lead de DevOps
+Engineers Senior (DevOps)
+Engineers Pleno (DevOps)
+
+Area de People & Talent
+
+People Business Partner
+Talent Acquisition
+
+2.2 Roles y Niveles
+
+Rol
+
+Junior
+
+Pleno (Semi-Senior)
+
+Senior
+
+Tech Lead
+
+2.3 Squads — Division por Productos
+
+Descripcién General
+
+En formacién. Trabaja con supervision directa del
+buddy o Tech Lead. Foco en aprender el flujo de
+trabajo, las convenciones del equipo y entregar tareas
+bien definidas.
+
+‘Trabaja con autonomia en features medianas. Participa
+activamente en Code Reviews. Capaz de resolver
+problemas sin supervisién constante, pero consulta en
+decisiones de arquitectura.
+
+Disefia soluciones, toma decisiones técnicas, mentoriza
+Juniors y Plenos, lidera reviews. Referente técnico en
+su Chapter.
+
+Responsable técnico de un Chapter. Define estandares,
+valida arquitecturas, coordina con Product Managers y
+Tech Leads de otros Chapters. Participa en entrevistas
+técnicas.
+
+Los squads son equipos de entrega. Cada squad tiene un Product Manager (PM), al menos un
+Tech Lead (puede ser compartido entre squads pequefios), desarrolladores de back-end,
+front-end y acceso a DevOps cuando es necesario.
+
+‘Squad
+Squad Pegasus Core
+
+Squad Phoenix
+
+Area de Negocio
+Plataforma central / API Gateway
+
+Portal del cliente / Dashboard
+
+Tech Stack Principal
+Java + Spring Boot + PostgreSQL
+
+React 18+ + TypeScript
+
+Squad Hermes Integraciones y mensajeria SQS + Spring Boot + Event-Driven
+
+Squad Athena Médulo de IA / RAG LangChain + Pinecone/Qdrant +
+Python adapter
+
+Squad Atlas Infraestructura y DevOps AWS + Docker + GitHub Actions
+
+> Nota para nuevos integrantes: Al incorporarte, tu Tech Lead te informara en cual squad estaras
+asignado durante el onboarding y cual sera tu squad definitivo.
+
+SECCION 3 — DiA 1— ACCESOS Y CUENTAS
+
+3.1 Antes de Llegar: Preparacion Previa
+
+El equipo de IT/Soporte y tu Tech Lead deben haber iniciado el proceso de creacién de accesos
+con al menos 48 horas de anticipaci6n a tu primer dia. Si llegas al Dia 1 sin correo corporativo,
+contacta a People (ver Seccién 13).
+
+Tu correo corporativo tendra el formato:
+
+nombre.apellido@santopegasus.com
+
+3.2 Tabla Completa de Accesos — Dia 1
+
+Sistema Para qué sirve Aqquién solicitarlo Plazo esperado
+Correo corporativo Comunicacién, IT/Soporte Antes del Dia 1
+(Google Workspace) calendario, Drive
+Slack Comunicacién interna del_| IT/Soporte Antes del Dia 1
+
+equipo
+GitHub (organizacion Repositorios de cédigo Tech Lead de tuChapter Dia 1—primeras 2h
+privada) fuente
+Jira Gestion de tareas y Tech Lead 0 PM del Diat
+
+sprints squad
+Confluence Documentacién interna Tech Lead o PM del Diat
+
+squad
+
+AWS Console (IAM User) Acceso servicios cloud Tech Lead de DevOps Dia +2
+
+(Read-only inicial)
+
+Datadog Observabilidad, logs y Tech Lead de DevOps Dia +2
+métricas
+
+SonarQube Analisis de calidad de IT/Soporte Dia 1-2
+cédigo
+
+VPN Corporativa Acceso seguro a IT/Soporte Diat
+recursos internos
+
+1Password (Gestor de Gestion segura de IT/Soporte Dia1
+
+contrasefias) credenciales
+
+Figma Disefio de interfaces Tech Leadde Front-end | Dia 2-3.
+(Front-end)
+
+3.3 Procedimiento para Solicitar Accesos
+
+1. Envia un correo a it-support@santopegasus.com con el asunto: ‘[ONBOARDING] Solicitud de
+accesos — [Tu Nombre] — [Fecha de Ingreso]"
+
+2. En el cuerpo del correo, inclui: tu nombre completo, tu rol, el nombre de tu Tech Lead y el
+squad al que fuiste asignado.
+
+3. IT/Soporte respondera con un ticket de seguimiento en un plazo maximo de 4 horas habiles.
+
+4. Para accesos que dependen del Tech Lead (GitHub, AWS), pediselo directamente por Slack en
+el mismo Dia 1.
+
+> A Importante: Nunca compartas tus credenciales con otros miembros del equipo, ni siquiera
+con tu Tech Lead. Si necesitas compartir acceso temporalmente, usa roles y permisos, nunca tu
+usuario personal. Ver Seccién 11.
+
+3.4 Canales de Slack a los que Unirte el Dia1
+
+Una vez en Slack, unite inmediatamente a los siguientes canales:
+
+Canal Propésito
+
+“#general’ Comunicaciones generales de la empresa
+“#back-end’ Discusiones técnicas del Chapter de Back-end
+“#front-end Discusiones técnicas del Chapter de Front-end
+“#devops Infraestructura, deploys, alertas de Cl/CD
+
+“#incidents’ Canal de incidentes en produccién (solo lectura inicial)
+‘#code-reviews' Notificaciones de Pull Requests abiertos
+“Haprendizaje’ Recursos, cursos, articulos y certifications
+
+“#random’ Conversaciones informales y cultura del equipo
+
+Canal de tu Squad Comunicacién diaria del squad (ej: #squad-phoenix’)
+
+SECCION 4 — CONFIGURACION DEL ENTORNO LOCAL —
+BACK-END
+
+> Esta seccion es para desarrolladores del Chapter de Back-end. Si sos del Chapter de
+Front-end, podés saltar directamente a la Seccion 5.
+
+4.1 Requisitos Previos del Sistema
+
+Antes de comenzar, asegurate de tener:
++ Sistema operativo: macOS 13+, Ubuntu 22.04+ o Windows 11 con WSL2 (recomendado)
++ Almenos 16 GB de RAM y 50 GB de espacio libre en disco
++ Conexién a la VPN corporativa activa
+
+4.2 Instalacion de JDK 17 con SDKMAN
+
+Usamos SDKMAN para gestionar versiones del JDK. Esto permite que diferentes proyectos
+usen diferentes versiones de Java sin conflictos.
+
+Paso 1— Instalar SDKMAN:
+
+“bash
+
+curl -s "https://get-sdkman.io" | bash
+
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+Paso 2 — Verificar instalacion:
+“bash
+sdk version
+
+Paso 3 — Instalar Java 17 (distribucién Temurin de Eclipse):
+“bash
+
+sdk install java 17.0.11-tem
+
+sdk default java 17.0.11-tem
+
+Paso 4 — Verificar la version activa:
+“bash
+
+java -version
+
+Salida esperada: openjdk version "17.0.11"
+2024-04-16
+
+4.3 Instalaci6n y Configuracion de IntelliJ IDEA
+
+Usamos IntelliJ IDEA (Community o Ultimate — la empresa provee licencias Ultimate para
+todos los desarrolladores back-end).
+
+Paso 1— Instalar IntelliJ IDEA:
+Descarga desde: https://www.jetbrains.com/idea/download/
+Paso 2 — Plugins obligatorios a instalar:
+
+Plugin Propésito
+
+SonarLint Analisis de calidad de cédigo en tiempo real
+Lombok Soporte para anotaciones Lombok en Spring Boot
+MapStruct Support Soporte para MapStruct en conversién de DTOs
+Docker Gestién de contenedores desde el IDE
+GitToolBox Informacién de Git inline en el editor
+
+.env files support Soporte para archivos .env
+
+Paso 3 — Configuracién del Code Style:
+File > Settings > Editor > Code Style > Java
+~ Importar el archivo santo-pegasus-codestyle.xml
+(disponible en el repositorio interno: /docs/ide/santo-pegasus-codestyle.xml)
+
+Paso 4 — Configurar el JDK en IntelliJ:
+
+File > Project Structure > SDK > Add SDK > JDK
+~ Apuntar a la ruta de SDKMAN: ~/.sdkman/candidates/java/current
+
+4.4 Instalacién de Docker Desktop
+
+Usamos Docker obligatoriamente para levantar el ambiente local con todas las dependencias
+(base de datos, Redis, etc.).
+
+“bash
+macOS (con Homebrew)
+
+brew install --cask docker
+
+Ubuntu
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+Verificar instalacion
+
+docker --version
+
+docker compose version
+
+> En macOS y Windows, inicia Docker Desktop como aplicacién antes de ejecutar cualquier
+comando ‘docker’.
+
+4.5 Clonar el Repositorio y Configurar el Proyecto
+
+Paso 1— Clonar el repositorio principal:
+
+“bash
+
+git clone git@github.com:santo-pegasus/[nombre-del-proyecto].git
+cd [nombre-del-proyecto]
+
+> Necesitas tener tu SSH Key configurada en tu cuenta de GitHub. Si no la tenés:
+> ‘bash
+
+> ssh-keygen -t ed25519 -C "nombre.apellido@santopegasus.com"
+
+> cat ~/.ssh/id_ed25519.pub
+
+> # Copid el output y agregalo en GitHub - Settings > SSH Keys
+
+—
+
+Paso 2 — Crear el archivo *.env’ local:
+
+“bash
+
+cp .env.example .env
+Paso 3 — Completar las variables obligatorias en el ‘.env’:
+
+Variable Descripcién Ejemplo de Valor
+
+“DB_URL’
+
+“DB_USERNAME’
+
+“DB_PASSWORD"
+
+“JWT_SECRET"
+
+“AWS_REGION’
+
+“REDIS_HOST
+
+“REDIS_PORT®
+
+“APP_PORT™
+
+URL de conexién a PostgreSQL
+local
+
+Usuario de la base de datos local
+
+Contraseiia de la base de datos
+local
+
+Secret para firma de tokens JWT
+(solo dev)
+
+Regién AWS configurada
+Host del Redis local
+Puerto del Redis
+
+Puerto en el que corre la aplicacién
+
+‘jdbe:postgresql://localhost:5432/p
+egasus_dev’
+
+“pegasus_user’
+
+‘dev_password_local
+
+“my-local-dev-secret-key-256bits”
+
+“us-east-1"
+‘localhost’
+“6379
+
+“8080
+
+> A El archivo ‘.env’ NUNCA debe ser commiteado al repositorio. Ya esta listado en el
+*.gitignore’. Si por error lo commiteas, notifica inmediatamente al Tech Lead. Ver Seccién 11.
+
+4.6 Levantar el Ambiente Local con Docker Compose
+
+“bash
+
+Levantar todas las dependencias (PostgreSQL,
+
+Redis, etc.)
+
+docker compose up -d
+
+Verificar que los contenedores estan corriendo
+
+docker ps
+
+Salida esperada:
+
+CONTAINERID IMAGE
+
+STATUS
+
+PORTS
+
+abc123def456 postgres:15 Up 2 minutes
+0.0.0.0:5432->5432/tcp
+
+789ghi101jkI redis:7 Up 2 minutes
+0.0.0.0:6379->6379/tcp
+
+4.7 Ejecutar el Proyecto por Primera Vez
+
+“bash
+Opcion 1— Con Maven Wrapper (recomendado)
+
+./mvnw spring-boot:run
+
+Opcion 2 — Desde IntelliJ IDEA
+
+Abrir la clase principal:
+src/main/java/.../Application.java
+
+Click derecho > Run ‘Application’
+Verificar que la aplicacion levanto correctamente
+
+curl http://localhost:8080/actuator/health
+Respuesta esperada: {"status":"UP"}
+
+4.8 Ejecutar las Pruebas
+“bash
+
+Ejecutar todas las pruebas
+
+./mvnw test
+
+Ejecutar solo las pruebas unitarias
+./mvnw test -Dtest="UnitTest"
+
+Ejecutar solo las pruebas de integracion (requiere
+Docker corriendo)
+
+./mvnw test -Dtest="IntegrationTest"
+
+Verificar el reporte de cobertura (generado en
+target/site/jacoco/index.html)
+
+./mvnw verify
+
+open target/site/jacoco/index.html
+
+> Recorda: la cobertura minima obligatoria es del 80% en pruebas unitarias para aprobar un Code
+Review. [Source: Guia Oficial de Ingenieria Back-end.pdf, Pagina 12]
+
+SECCION 5 — CONFIGURACION DEL ENTORNO LOCAL —
+FRONT-END
+
+> Esta seccién es para desarrolladores del Chapter de Front-end.
+5.1 Requisitos Previos del Sistema
+
+« Sistema operativo: macOS 13+, Ubuntu 22.04+ o Windows 11 con WSL2
++ Almenos 8 GB de RAM y 20 GB de espacio libre
+
+* Conexi6n a la VPN corporativa activa
+
+5.2 Instalacién de Node.js 20+ con NVM
+
+Usamos NVM (Node Version Manager) para gestionar versiones de Node.js, de la misma
+manera que usamos SDKMAN para Java.
+
+Paso 1— Instalar NVM:
+
+“bash
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+Recargar el shell
+source ~/.bashrc #0 ~/.zshrc en macOS con Zsh
+
+Paso 2 — Instalar y usar Node.js 20:
+“bash
+
+nvm install 20
+
+nvm use 20
+
+nvm alias default 20
+
+Paso 3 — Verificar instalacion:
+
+“bash
+node --version #v20.x.x
+npm --version # 10.x.x
+
+5.3 Visual Studio Code — Instalacion y Extensiones
+
+Usamos VS Code como editor estandar para el Chapter de Front-end.
+
+Descarga desde: https://code.visualstudio.com/
+Extensiones obligatoria:
+
+Extensi6n ID en Marketplace
+ESLint “dbaeumer.vscode-eslint
+Prettier “esbenp.prettier-vscode’
+GitLens ‘eamodio.gitlens’
+
+TypeScript Hero “rbbit.typescript-hero
+
+Tailwind CSS Intellisense “bradic.vscode-tailwindcss"
+
+Auto Rename Tag “formulahendry.auto-rename-tag’
+
+Error Lens “usernamehd.error-lens’
+
+SonarLint
+Configuracién de VS Code (settings.json):
+
+json
+
+“sonarsource.sonarlint-vscode
+
+“editor.formatOnSave": true,
+“editor.defaultFormatter": “esbenp.prettier-vscode",
+“editor.codeActionsOnSave": {
+
+“source. fixAll-eslint": true
+},
+“typescript.preferences.importModuleSpecifier'
+
+relative"
+
+Propésito
+
+Linting de JavaScript/TypeScript
+
+Formateo automatico de cédigo
+
+Informacién de Git inline en el
+editor
+
+Organizacién de imports
+TypeScript
+
+Autocompletado para Tailwind
+
+Renombrado automatico de tags
+JSX
+
+Visualizacién inline de errores
+
+Calidad de cédigo en tiempo real
+
+5.4 Clonar el Repositorio Front-end
+
+“bash
+git clone git@github.com:santo-pegasus/[nombre-del-proyecto]-frontend.git
+cd [nombre-del-proyecto]-frontend
+
+5.5 Configurar el Archivo “.env”
+“bash
+
+cp .env.example .env
+
+Variables obligatorias para el front-end:
+
+Variable Descripcién Ejemplo
+‘VITE_API_BASE_URL’ URL de la API back-end local “http://localhost:8080/api°
+“VITE_APP_NAME’ Nombre de la aplicacién “Pegasus Portal
+‘VITE_ENVIRONMENT” Entorno actual ‘development’
+
+> AEn proyectos Vite, solo las variables con prefijo ‘\VITE_” son expuestas al cliente. Nunca
+pongas secrets en variables front-end. El ’.env’ ya esta en el *.gitignore’.
+
+5.6 Instalar Dependencias y Ejecutar el Proyecto
+
+“bash
+Instalar dependencias
+
+npm install
+
+Iniciar el servidor de desarrollo
+
+npm run dev
+
+La aplicacion estara disponible en:
+http://localhost:5173
+Ejecutar pruebas unitarias
+
+npm run test
+
+Ejecutar pruebas con cobertura
+
+npm run test:coverage
+
+Build para produccion (solo para verificar que el
+build no falla)
+
+npm run build
+
+SECCION 6 — GUIA DE GIT Y FLUJO DE TRABAJO
+
+6.1 Modelo de Branching — GitFlow
+
+Usamos GitFlow como estrategia de branching. Las ramas principales son:
+
+Rama Propésito Reglas
+
+‘main Cédigo en produccién Nunca se commitea directamente.
+Solo recibe merges desde
+“release/’ 0 ‘hotfix/
+
+“develop” Integracién de features en Base para abrir features. Recibe
+desarrollo merges desde ‘feature/
+
+“feature/’ Desarrollo de nuevas Se crea desde ‘develop’. Se
+funcionalidades mergea de vuelta a ‘develop’
+
+“release/" Preparacién para produccién Se crea desde ‘develop’. Se
+
+mergea a ‘main’ y ‘develop’
+
+“hottfix/’ Correcciones urgentes en Se crea desde ‘main’. Se mergea a
+produccién *main’ y ‘develop’
+
+6.2 Nomencliatura de Branches
+
+El patron obligatorio para nombrar una branch es:
+[tipo]/[JIRA-TICKET]-[descripcion-corta-~en-kebab-case]
+Tipos validos:
+
+Tipo Cuando usarlo
+
+‘feature’ Nueva funcionalidad
+
+fix’ Correccién de bug
+
+“hotfix” Correccién urgente en produccién
+
+‘refactor’ Refactorizacion de cédigo existente
+
+‘docs’ Actualizacién de documentacién
+
+test Adicién 0 correccién de pruebas
+
+“chore* Tareas de mantenimiento (actualizaciones de deps,
+
+etc.)
+Ejemplos correctos:
+“bash
+feature/PEG-142-cadastro-de-usuarios
+fix/PEG-201-correccion-validacion-email
+refactor/PEG-315-extraer-logica-autenticacion
+hotfix/PEG-999-error-critico-login-produccion
+
+Como crear la branch:
+“bash
+Asegurarse de estar en develop actualizado
+
+git checkout develop
+git pull origin develop
+Crear y cambiar a la nueva branch
+
+git checkout -b feature/PEG-142-cadastro-de-usuarios
+
+6.3 Conventional Commits — Mensajes de Commit Semanticos
+
+Usamos Conventional Commits para todos los mensajes de commit. Esto permite la generacion
+automatica de changelogs y una historia de Git legible.
+
+Formato:
+<tipo>(<scope>): <descripcién corta en minuisculas>
+
+[cuerpo opcional — explicacién mas detallada]
+
+[footer opcional — referencias a tickets]
+
+Tipos validos:
+
+Tipo Significado
+“feat Nueva funcionalidad
+fix’ Correccién de bug
+“refactor Refactorizacién sin cambio de funcionalidad
+“test Adicién 0 correccién de pruebas
+‘docs’ Documentacién
+‘style’ Formateo, espacios (sin cambios légicos)
+“chore” Mantenimiento, actualizaciones
+‘perf Mejoras de rendimiento
+‘ct Cambios en CI/CD
+Ejemplos correctos:
+“bash
+
+Feature simple
+
+git commit -m “feat(auth): agregar validacién de token JWT en el endpoint de login"
+
+Fix con referencia a ticket
+
+git commit -m "fix(usuarios): corregir validacin de email duplicado
+
+El servicio no estaba verificando correctamente los emails en mayusculas.
+Closes PEG-201"
+
+Refactor
+
+git commit -m “refactor(pagos): extraer légica de calculo de impuestos a servicio dedicado"
+
+Ejemplos incorrectos (no hacer esto):
+“bash
+Demasiado vago
+
+git commit -m “fix bug"
+
+Sin tipo
+
+git commit -m "agrego validacion"
+
+En mayusculas
+
+git commit -m "FEAT: Nueva funcionalidad"
+
+6.4 Proceso de Push y Pull Request
+
+Paso 1— Asegurarte de que las pruebas pasen localmente:
+“bash
+
+-/mvnw test # Back-end
+
+npm run test # Front-end
+
+Paso 2— Push de tu branch:
+“bash
+git push origin feature/PEG-142-cadastro-de-usuarios
+
+Paso 3 — Abrir el Pull Request en GitHub:
++ Ir al repositorio en GitHub
++ Hacer click en "Compare & pull request"
+* Completar el template obligatorio del PR:
+- {Qué se hizo? — Descripcién clara de los cambios
+- éPor qué se hizo? — Contexto de negocio o técnico
+- gComo probar? — Pasos detallados para reproducir y verificar los cambios
+- Screenshots (si aplica, especialmente en front-end)
+- Checklist de calidad (pruebas, documentacion, etc.)
+Paso 4 — Solicitar revisores:
++ Asignar al menos 2 revisores Senior o Semi-Senior (Pleno)
++ Notificar en el canal ‘#code-reviews’ de Slack con el link al PR
+
+> Todo PR en Santo Pegasus exige al menos 2 aprobaciones de miembros Senior o Semi-Senior
+(Pleno) antes del merge. [Source: Guia Oficial de Ingenieria Back-end.pdf, Page 8]
+
+6.5 Responder Reviews
+
++ Respondé todos los comentarios antes de solicitar una nueva revisién.
+
+* Si estas de acuerdo con un comentario, hacé el cambio y respondé con * Corregido en el
+
+commit abc1234°.
+
+* Sino estas de acuerdo, explica tu razonamiento con respeto y datos técnicos. El debate
+
+técnico es bienvenido.
+
+« Nunca hagas merge sin tener todas las aprobaciones requeridas.
+
+SECCION 7 — PRIMERAS TAREAS SUGERIDAS — PLAN 30/60/90
+
+DiAS
+
+7.1Para Desarrolladores Junior
+
+Periodo
+
+Primeros 30 dias
+
+30-60 dias
+
+60-90 dias
+
+Objetivos
+
+Completar el onboarding. Tener el
+entorno funcionando. Leer la Guia
+de Ingenieria Back-end 0 Front-end
+completa. Resolver 2-3 tickets de
+tipo ‘good-first-issue’ en Jira con
+apoyo del buddy. Participar en al
+menos 1 Code Review como
+observador.
+
+Entregar features pequefias de
+forma auténoma (con revisién del
+buddy). Escribir pruebas unitarias
+para el cédigo propio. Aprender a
+leer y usar el Swagger de las APIs
+internas. Participar activamente en
+Code Reviews.
+
+Contribuir en refinements con
+preguntas técnicas. Proponer
+mejoras en el cédigo del equipo.
+Tomar ownership de al menos 1
+feature completa de principio a fin.
+Dar su primer Code Review como
+revisor (con guia del buddy).
+
+7.2 Para Desarrolladores Pleno (Semi-Senior)
+
+Periodo
+
+Primeros 30 dias
+
+Objetivos
+
+Onboarding técnico completo.
+Entender la arquitectura del squad.
+Tomar ownership de features de
+mediana complejidad. Realizar
+Code Reviews activos.
+
+Indicadores de Exito
+
+PR mergeado. Entorno configurado
+y funcional. Participacién activa en
+dailies.
+
+Cobertura de pruebas = 80% en
+cédigo propio. Al menos 3 PRs
+mergeados sin errores graves.
+
+Feature completa entregada.
+Primer review dado. Participacién
+en retros con sugerencias propias.
+
+Indicadores de Exito
+
+Al menos 5 PRs mergeados. Al
+menos 3 Code Reviews realizados
+con comentarios de calidad.
+
+30-60 dias Liderar técnicamente una feature Feature liderada entregada.
+del sprint. Proponer mejoras de Propuesta técnica documentada en
+arquitectura 0 proceso en el squad. | Confluence.
+Mentorizar a un Junior si hay en el
+squad.
+60-90 dias Tomar decisiones técnicas en su Decisién técnica documentada.
+
+rea con autonomia. Participar en
+definicién de criterios de
+aceptacién en refinements.
+Proponer y liderar una iniciativa de
+deuda técnica.
+
+7.3 Para Desarrolladores Senior
+
+Periodo
+
+Primeros 30 dias
+
+Objetivos
+
+Onboarding completo. Entender la
+arquitectura global (no solo del
+squad). Revisar la Guia de
+Ingenieria y proponer mejoras si las
+identifica. Contribuir con reviews
+de alta calidad desde la primera
+semana.
+
+Iniciativa de deuda técnica con PR
+abierto o completado.
+
+Indicadores de Exito
+
+ADR (Architecture Decision Record)
+de una decisién tomada. Reviews
+reconocidos por el equipo.
+
+30-60 dias Identificar y documentar areas de Documento técnico en Confluence.
+mejora técnica. Liderar una Al menos 2 Juniors/Plenos con
+iniciativa técnica transversal. sesién de mentoring.
+
+Comenzar a mentorizar
+activamente a Juniors 0 Plenos.
+60-90 dias Participar en entrevistas técnicas Participacién en al menos 1
+
+de nuevos candidatos. Proponer
+cambios en la Guia de Ingenieria.
+Tener visibilidad clara sobre el
+roadmap técnico del squad.
+
+entrevista. Pull Request de
+actualizacién de la Guia de
+Ingenieria.
+
+SECCION 8 — HERRAMIENTAS Y SISTEMAS INTERNOS
+
+8.1 Jira — Gestion de Tareas
+
+URL: https://santopegasus.atlassian.net/jira
+
+Como rastrear tus tickets:
+
+1. Alinicio de cada sprint, los tickets asignados a vos aparecen en tu Board del Squad.
+2. Cada ticket tiene un ID Unico: ej. "PEG-142°. Ese ID se usa en branches y commits.
+
+3. Los estados de un ticket son: To Do > In Progress > In Review > Done.
+
+4. Cuando comenzas a trabajar en un ticket, movelo a In Progress inmediatamente.
+
+5. Cuando abris un PR, movelo a In Review y agrega el link al PR en el ticket de Jira.
+
+6. Solo movelo a Done cuando el PR fue mergeado.
+
+Tipos de tickets que vas a encontrar:
+
+Tipo Descripcién
+
+Story Funcionalidad desde la perspectiva del usuario
+
+Task Tarea técnica sin valor directo de negocio
+
+Bug Error a corregir
+
+Spike Investigacién técnica 0 exploracién
+
+good-first-issue Tickets etiquetados especialmente para nuevos
+integrantes
+
+n Interna
+
+URL: https://santopegasus.atlassian.net/confluence
+Espacios principales:
+
+Espacio ‘Qué encontras
+
+Engineering / Back-end Gulas técnicas, ADRs, arquitectura de sistemas
+Engineering / Front-end Guias de componentes, design system, convenciones
+Engineering / DevOps Procedimientos de deploy, runbooks de incidentes
+Squads Documentacién especifica de cada squad y producto
+People & Onboarding Este manual, politicas de RRHH, beneficios
+Decisiones de Arquitectura (ADR) Registro hist6rico de decisiones técnicas relevantes
+
+> Buena practica: Ante cualquier duda técnica recurrente, busca primero en Confluence antes de
+preguntar en Slack. Sila respuesta no esta, agregala vos mismo después de encontrarla — asi
+mejoramos la documentaci6n colectivamente.
+
+8.3 Slack — Comunicacién Interna
+
+Canales obligatorios (ya listados en Seccién 3.4) — Guia de etiquet:
+
++ Preferia los canales publicos a los mensajes directos para temas técnicos. Asi el
+conocimiento queda disponible para todos.
+
++ Usa hilos (threads) para responder a mensajes especi
+principal.
+
+os. Evita el ruido en el canal
+
++ Para menciones urgentes, usa ‘@nombre’ o ‘@here’ con criterio (no abuses del
+*@channel’).
+
+« El canal ‘#incidents’ tiene alertas automaticas de Datadog y PagerDuty. No envies mensajes
+en este canal salvo que estés informando o coordinando un incidente activo.
+
+8.4 Swagger — APIs Internas
+
+Todas las APIs de Santo Pegasus estan documentadas usando la especificacién OpenAPI
+(Swagger), generada automaticamente desde el codigo con ‘springdoc-openapi .
+
+Acceso al Swagger en ambiente local:
+http://localhost:8080/swagger-ui/index.htm!
+
+Acceso al Swagger en ambiente de Staging:
+https://api-staging.santopegasus.com/swagger-ui/index.html
+
+> El Swagger de producci6n esta protegido y requiere autenticacién. Consulta con tu Tech Lead
+para obtener las credenciales de acceso al Swagger de Staging.
+
+Como usar el Swagger:
+
+1. Expandi el endpoint que querés explorar.
+
+2. Hacé click en "Try it out" para ejecutar llamadas reales.
+
+3. Completa los parametros requeridos.
+
+4. Hacé click en "Execute" y analiza la respuesta.
+
+SECCION 9 — PROCESO DE CODE REVIEW
+
+9.1 Filosofia del Code Review en Santo Pegasus
+
+El Code Review no es un filtro de control de calidad punitivo. Es una oportunidad de
+aprendizaje colectivo, mejora del cédigo y diseminacién de conocimiento. Todos — sin
+importar el nivel — dan y reciben reviews.
+
+> La comunicacién en los reviews debe estar siempre pautada por la empatia y la educacién. El
+enfoque de la revision debe ser exclusivamente la mejora del cddigo, nunca una critica al
+autor. [Source: Guia Oficial de Ingenieria Back-end.pdf, Page 8]
+
+9.2 Como Participar en Reviews desde el Dia 1
+
+Como autor del PR:
+* Completa el template del PR con detalle: qué se hizo, por qué se hizo, como probar.
+
+. Hacé PRs pequefios y focalizados. Un PR que toca 15 archivos no relacionados es dificil de
+revisar.
++ Respondé todos los comentarios antes de pedir re-revision.
++ No hagas merge sin las 2 aprobaciones requeridas.
+Como revisor:
+« Acepta la revisién dentro de 24 horas habiles de ser asignado.
++ Leé el contexto del ticket de Jira antes de revisar el codigo.
+
+* Prioriza comentarios sobre: legibilidad, seguridad, rendimiento y conformidad con la Guia de
+Ingenieria.
+
+9.3 Etiqueta — Como Dar Feedback
+
+Recomendado — Preguntas sugestivas:
+
+"gQué te parece extraer esta Igica a un método privado para mejorar la legibilidad?"
+
+“Noté que este método hace mas de una cosa. {Consideraste separar las responsabilidades?"
+“gHay alguna razon para no usar Optional aqui en lugar del null check manual?"
+No recomendado — Imperativos sin contexto:
+“Cambia esto.’
+“Esto esta mal."
+“No hagas asi.
+> Se recomienda el uso de preguntas sugestivas para incentivar la reflexion del desarrollador,
+como: ";Qué te parece extraer esto a un método privado?", evitando imperativos como "Cambia
+esto a un método privado". [Source: Guia Oficial de Ingenieria Back-end pdf, Page 8]
+9.4 Criterios Técnicos de Revision
+El revisor debe validar:
+Criterio Qué verificar
+Legibilidad El cédigo es facil de entender por alguien que no lo
+escribid
+Seguridad No hay hardcode de credenciales, validacién de
+
+entradas presente, no se expone informacién sensible
+
+Rendimiento No hay consultas N+1, no hay operaciones bloqueantes
+innecesarias,
+
+Pruebas La cobertura minima de! 80% esta cumplida; los casos
+edge estén cubiertos
+
+Conformidad El cédigo sigue las directrices de la Guia de Ingenieria
+Back-end o Front-end
+
+Arquitectura Las responsabilidades estan en las capas correctas
+(Controller, Service, Repository)
+
+> El revisor actua como un guardian de la base de cédigo, debiendo validar minuciosamente la
+legibilidad, la seguridad, el rendimiento y si la implementacion respeta rigurosamente todas las
+directrices establecidas en la Guia de Ingenieria Back-end. [Source: Guia Oficial de Ingenieria
+Back-end.pdf, Page 8]
+
+SECCION 10 — BENEFICIOS Y POLITICAS DE RRHH
+
+10.1 Beneficios Activos
+
+Beneficio Detalle
+
+Vale Transporte Cubierto al 100% para dias de trabajo presencial,
+proporcional a los dias en oficina
+
+Vale Alimentacién / Comida Tarjeta mensual cargada el primer dia habil de! mes,
+valor definido segin nivel de seniority
+
+Seguro de Salud Pian médico corporativo, cobertura desde el primer
+mes de trabajo
+
+Seguro Dental Incluido en el plan de salud corporativo
+
+Horario Flexible Core hours de 10:00 a 17:00 (zona horaria del equipo).
+El resto del horario es flexible
+
+Home Office Modelo hibrido. La asistencia presencial es opcional
+salvo eventos especificos de! equipo
+
+Cursos y Certificaciones Presupuesto anual por persona para capacitaciones y
+certificaciones técnicas. Consulta con People el monto
+vigente
+
+Dia de Cumpleafios Libre El dia de tu cumpleafios (0 el dia habil mas cercano) es
+
+libre remunerado
+
+Politica de Vacaciones Seginn legislacién local + dias adicionales por
+antigiiedad. Coordinar con 30 dias de anticipacién
+
+10.2 Cursos y Certificaciones Patrocinados
+
+Santo Pegasus invierte activamente en el crecimiento técnico de su equipo. Las certificaciones
+priorizadas son:
+
++ AWS Certified Developer - Associate
+
++ AWS Certified Solutions Architect
+
+* Oracle Certified Professional: Java SE 17 Developer
+
++ Professional Scrum Developer (PSD)
+
++ Kubernetes Application Developer (CKAD)
+Para solicitar el patrocinio de un curso o certificacion:
+1. Conversarlo con tu Tech Lead.
+2. Completar el formulario en Confluence: ‘People > Beneficios > Solicitud de Capacitacion’.
+3. Aguardar aprobacién del People BP (plazo: 5 dias habiles).
+
+10.3 Politica de Desconexién
+
+Santo Pegasus respeta el tiempo fuera del trabajo. No se esperan respuestas de Slack fuera
+del horario laboral, salvo que seas el responsable de guardia de on-call (rotacién voluntaria
+
+con compensacién adicional). Los incidentes de produccién tienen un proceso de escalada
+
+definido — nadie debe estar disponible 24/7 sin acuerdo previo.
+
+SECCION 11 — SEGURIDAD DESDE EL PRIMER DiA
+
+11.1 Gesti6n de Contrasefias
+
+Usamos 1Password como gestor de contrasefas corporativo. Todas las contrasefias
+relacionadas con sistemas de la empresa deben estar almacenadas ahi.
+Reglas basicas:
++ Nunca reutilices contrasefas entre sistemas.
+* Todas las contrasefias corporativas deben tener al menos 20 caracteres, generadas por
+1Password.
+
++ Activa autenticacién de dos factores (2FA) en todos los sistemas que lo permitan: GitHub,
+AWS Console, Jira, Confluence.
+
++ Nunca compartas tu contrasefia con nadie, ni con tu Tech Lead, ni con IT/Soporte. Si
+necesitas dar acceso, usa roles y permisos del sistema correspondiente.
+
+11.2 Credenciales en Codigo — Regla de Oro
+
+> NUNCA haga hardcode (escribir directamente en el cédigo) de contrasefias, claves de API,
+URIs de base de datos o tokens. [Source: Guia Oficial de Ingenieria Back-end.pdf, Page 8]
+
+En entornos de produccién y homologacion, es obligatorio el uso de soluciones de gestion de
+secretos como HashiCorp Vault, AWS Secrets Manager o Google Cloud Secret Manager.
+[Source: Guia Oficial de Ingenieria Back-end.pdf, Page 8]
+
+Checklist de seguridad antes de hacer un commit:
+* [] éEl archivo ‘.env’ esta en el ’.gitignore’?
+* [] No hay ningun secret, password o API key en el cddigo fuente?
++ [] éLas variables sensibles estan referenciadas por nombre de variable de entorno?
++ [] éEl archivo *.env.example’ tiene los nombres de las variables pero sin valores reales?
+
+11.3 Uso Correcto del .gitignore
+
+El repositorio ya tiene un *.gitignore’ pre-configurado. Nunca lo modifiques para incluir
+archivos que contienen secretos. Los archivos que siempre deben estar en el *.gitignore’:
+““gitignore
+
+Variables de entorno locales
+
+-env
+-env.local
+
+-env..local
+
+Archivos de configuraci6on con secrets
+
+application-local.yml
+application-local.properties
+
+Directorios de build
+
+target/
+
+build/
+
+dist/
+node_modules/
+
+Archivos de IDE
+
+.idea/
+-iml
+.vscode/settings.json
+
+11.4 Escaneo Automatico de Secrets
+
+Usamos herramientas de escaneo automatico como gitleaks o trufflehog en nuestros pipelines
+de CI/CD para detectar y bloquear commits que contengan cadenas de texto que se asemejen
+a secretos. [Source: Guia Oficial de Ingenieria Back-end.pdf, Page 9]
+
+Si el pipeline bloquea tu PR por deteccidn de un posible secret:
+1. No intentes bypassear el control.
+
+2. Revisd el commit indicado en el error.
+
+3. Si es un falso positivo, notifica al Tech Lead de DevOps.
+
+4. Si es un secret real, notifica inmediatamente al Tech Lead y a IT/Soporte para ii
+de rotacion de credenciales.
+
+11.5 Reporte de Incidentes de Seguridad
+
+Si detectas 0 sospechas de un incidente de seguridad (secret expuesto, acceso no autorizado,
+comportamiento andémalo):
+
+1. No lo resuelvas solo y en silencio.
+
+2. Notifica inmediatamente en ‘#incidents’ con el tag ‘@security-lead’.
+
+3. Contacta a tu Tech Lead directamente por Slack o teléfono.
+
+4. Documenta lo que viste, cuando lo viste y qué acciones tomaste.
+
+5. No borres evidencia. No modifiques logs.
+
+> El principio de privilegio minimo debe ser aplicado, garantizando que cada microservicio tenga
+acceso solo a los secretos estrictamente necesarios para su operacidn. [Source: Guia Oficial de
+Ingenieria Back-end.pdf, Page 9]
+
+SECCION 12 — CHECKLIST DE ONBOARDING — SEMANA 1
+
+Este checklist debe ser completado conjuntamente por el nuevo desarrollador y su Tech Lead
+antes del fin de la primera semana. Guardalo en Confluence en tu pagina personal de
+onboarding.
+
+12.1 Accesos y Cuentas
+
+* [] Correo corporativo (@santopegasus.com) funcionando
+* [] Slack instalado y canales obligatorios unidos
++ [] Acceso a GitHub (organizacion privada) confirmado
+
+* [] Acceso a Jira funcionando, squad asignado visible
+
+* [] Acceso a Confluence funcionando
+
++ [] VPN corporativa instalada y probada
+
++ [] 1Password corporativo configurado y contrasefas migradas
+* [] 2FA activado en GitHub, Google Workspace y AWS Console
+* [] Acceso a AWS Console (Read-only) confirmado
+
+* [] Acceso a Datadog confirmado
+
+* [] Acceso a SonarQube confirmado
+
+12.2 Entorno de Desarrollo — Back-end
+
+« [] SDKMAN instalado y Java 17 activo (‘java -version’)
+
+« [] IntelliJ IDEA instalado con plugins obligatorios
+
+* [] Docker Desktop instalado y corriendo (‘docker ps’)
+
++ [] Repositorio clonado correctamente con SSH
+
+* [] Archivo *.env’ creado con todas las variables obligatorias
+
+* [] ‘docker compose up -d’ ejecutado sin errores
+
+* [] Aplicacién corriendo en localhost:8080 (‘actuator/health’ retorna UP)
+« [] -./mvnw test’ ejecutado sin fallos
+
+« [] Swagger local accesible en localhost:8080/swagger-ui/index.html
+
+12.3 Entorno de Desarrollo — Front-end
+
+« [] NVM instalado y Node.js 20 activo (‘node --version’)
+
++ [] VS Code instalado con extensiones obligatorias
+
+« [] Repositorio front-end clonado correctamente con SSH
+
+* [] Archivo *.env’ front-end creado con variables obligatorias
++ [] ‘npm install’ ejecutado sin errores
+
+¢ [] ‘npm run dev’ corriendo en localhost:5173
+
++ [] ‘npm run test’ ejecutado sin fallos
+
+12.4 Flujo de Trabajo
+
++ [1 SSH Key configurada en GitHub
+
++ [] Primer commit de prueba realizado siguiendo Conventional Commits
++ [] Branch creada siguiendo el patrén de nomenclatura correcto
+
+* [] Pull Request de prueba abierto con template completo
+
++ [] Al menos 1 Code Review observado
+
+* [] Daily del squad participado al menos 1 vez
+
+12.5 Cultura y Conocimiento
+
++ [] Guia de Ingenieria Back-end o Front-end leida completamente
+
+[ ] Sesién de bienvenida con Tech Lead realizada (minimo 1h)
+
+[] Presentacién al squad en la daily o reunién de equipo
+
+[] Al menos 1 sesi6n de pair programming con el buddy agendada
+[] Plan 30/60/90 dias revisado y acordado con Tech Lead
++ [] Pagina personal de onboarding creada en Confluence
+
+12.6 Firma de Confirmacion
+
+Rol Nombre Firma Fecha
+Nuevo Desarrollador
+Tech Lead
+
+People Business Partner
+
+SECCION 13 — CONTACTOS UTILES
+
+13.1 Tech Leads por Area
+
+Area Nombre Slack Email
+
+Tech Lead—Back-end A confirmar por People @tech-lead-backend tI-backend@santopegasu
+s.com
+
+Tech Lead—Front-end A confirmar por People @tech-lead-frontend tI-frontend@santopegasu
+s.com
+
+Tech Lead — DevOps / ‘A confirmar por People @tech-lead-devops tI-devops@santopegasus
+
+SRE .com
+
+Direccién de Ingenieria ‘A confirmar por People @eng-director engineering@santopegas
+us.com
+
+> Los nombres especificos de los Tech Leads son comunicados en el correo de bienvenida
+enviado por People antes del Dia 1.
+
+13.2 Equipo de People & Talent
+
+Rol Contacto Canal
+People Business Partner people@santopegasus.com “#people-hr’ en Slack
+Talent Acquisition talent@santopegasus.com “#people-hr’ en Slack
+
+13.3 Equipo de IT / Soporte
+
+Canal Propésito Tiempo de Respuesta
+
+it-support@santopegasus.com Solicitud de accesos, hardware, 4h habiles
+incidentes de IT
+
+“#it-support’ en Slack Consultas rapidas de IT 2h habiles
+Ticket en Jira (proyecto IT) Solicitudes formales con Seguin prioridad
+seguimiento
+
+13.4 Contactos de Emergencia
+
+Situacién Aquién contactar cémo
+
+Incidente de produccién Tech Lead del squad + “#incidents’ | Slack
+
+Incidente de seguridad Tech Lead de DevOps + !T/Soporte Slack + Email
+
+Problema de accesos urgente IT/Soporte Email + Slack
+
+Situacién personal (salud, People BP Email 0 teléfono directo
+emergencia) (comunicado en Dia 1)
+
+SECCION 14 — PREGUNTAS FRECUENTES DEL ONBOARDING
+
+P: zCuanto tiempo tengo para hacer el onboarding antes de que se espere que sea plenamente
+productivo?
+
+R: El plan 30/60/90 dias es una guia de rampaje progresiva. No se espera que seas plenamente
+productivo al finalizar la Semana 1. El objetivo de la primera semana es tener el entorno
+configurado y conocer el equipo. La productividad plena se espera aproximadamente al mes 3,
+segun tu nivel de seniority.
+
+P: zPuedo hacer preguntas “basicas" sin sentirme mal?
+
+R: Absolutamente si. Tenés un buddy asignado exactamente para eso. En Santo Pegasus,
+preguntar es una sefial de inteligencia, no de ignorancia. Si una pregunta te parece basica, es
+probable que también le sirva a otra persona del equipo, asi que preguntala en el canal
+correspondiente en Slack.
+
+P: gQué pasa si rompo algo en el ambiente local?
+
+R: El ambiente local es exactamente para eso: experimentar, romper y aprender. Nada en tu
+entorno local afecta produccidn. Si tenés dudas, tu buddy puede ayudarte a reconstruirlo
+desde cero con ‘docker compose down -v && docker compose up -d’.
+
+P: zPuedo pushear cédigo directamente a ‘develop’ o ‘main’?
+
+R: No. Las ramas ‘develop’ y ‘main’ estan protegidas y solo reciben cédigo a través de Pull
+Requests aprobados. Cualquier intento de push directo sera rechazado por GitHub.
+
+P: zEn qué nivel de inglés debo estar para trabajar aqui?
+
+R: La comunicacion interna del equipo es principalmente en espanol. La documentacién
+técnica (Guias de Ingenieria, ADRs) puede estar en inglés 0 espafol seguin quién la escribid. El
+cédigo, los comentarios, los commits y los nombres de variables deben estar en inglés. Un
+nivel de lectura y escritura técnica basica es suficiente para comenzar.
+
+P: zCuando puedo solicitar el presupuesto de cursos y certificaciones?
+
+R: El presupuesto esta disponible desde el primer mes. Sin embargo, recomendamos que en
+los primeros 90 dias te enfoques en el onboarding y el aprendizaje del contexto del producto.
+Después de ese periodo, conversa con tu Tech Lead y People sobre las certificaciones mas
+alineadas con tu plan de carrera.
+
+P: zCémo sé si mi Pull Request fue revisado?
+
+R: Recibiras una notificacién de GitHub por correo electronico y también en el canal
+“#code-reviews’ de Slack. También podés configurar las notificaciones de GitHub
+directamente en Slack usando la integracion de GitHub disponible en el workspace.
+
+P: zQué es un ADR y como lo creo?
+
+R: ADR significa Architecture Decision Record. Es un documento breve que registra una
+decision técnica importante: el contexto, las opciones consideradas, la decision tomada y sus
+consecuencias. El template esta disponible en Confluence: ‘Engineering > Decisiones de
+Arquitectura > Template ADR’. Pedile a tu Tech Lead que revise el primero que escribas.
+
+P: gPuedo usar “System.out.printin()" para debug?
+
+R: No en cédigo que va al repositorio. La utilizacién de ‘System.out.printin()° esta
+estrictamente prohibida en Santo Pegasus. Usamos SLF4J como interfaz de abstraccién con
+Logback como framework de implementacién. [Source: Guia Oficial de Ingenieria
+Back-end.pdf, Page 9]
+
+P: ~Cémo reporto un bug que encontré en produccién?
+
+R: Abri un ticket en Jira del tipo Bug en el proyecto del squad correspondiente. Si el bug es
+critico y esta afectando usuarios en produccién ahora mismo, notifica primero en ‘#incidents”
+en Slack con una descripcion breve y luego crea el ticket.
+
+SECCION 15 — DISPOSICIONES FINALES Y REVISION DEL
+DOCUMENTO
+
+15.1 Vigencia del Documento
+
+Este manual entra en vigencia a partir de su fecha de publicacién (Junio 2026) y aplica a todos
+los desarrolladores que se incorporen a Santo Pegasus Soluciones a partir de esa fecha.
+
+Rol Responsal
+
+jad
+
+People & Talent Distribuir este manual a cada nuevo integrante antes
+del Dia 1. Mantener la Seccién 10 actualizada.
+
+Tech Leads (todos los Chapters) Asegurar que el checklist de la Seccién 12 sea
+completado en la primera semana. Asignar un buddy a
+cada nuevo integrante.
+
+Direccién de Ingenieria Aprobar las revisiones del documento. Mantener la
+Seccién 1 (Cultura) y Seccién 2 (Estructura) alineadas
+con la realidad de la empresa.
+
+IT / Soporte Garantizar que los accesos listados en la Seccién 3
+estén disponibles en los plazos indicados.
+
+15.3 Ciclo de Revision
+
+Este documento es revisado formalmente cada 6 meses (proxima revision:
+Las actualizaciones pueden ocurrir de forma extraordinaria cuando:
+
+« Hay cambios significativos en el stack tecnoldgico.
+
+* Se incorporan o eliminan herramientas del flujo de trabajo.
+
++ Hay cambios en la estructura del equipo o en los beneficios de RRHH.
+* Se reciben sugerencias fundamentadas de miembros del equipo.
+
+15.4 Como Contribuir a Este Documento
+
+Este manual es un documento vivo. Si durante tu onboarding identificas informacion
+desactualizada, un paso que falta o una mejora posible:
+
+1. Hacé un comentario directamente en la pagina de Confluence.
+
+2. O envia tu sugerencia al canal ‘#onboarding-feedback’ en Slack.
+
+3. O abri un ticket en Jira del tipo Task en el proyecto People con el label ‘docs-improvement’.
+
+Las contribuciones de nuevos integrantes son especialmente valiosas porque vienen de la
+perspectiva de alguien que acaba de pasar por el proceso. Tu mirada fresca importa.
+
+15.5 Agradecimiento Final
+
+Construir software de calidad es un deporte de equipo. Este manual representa el esfuerzo
+colectivo de todos los que pasaron por Santo Pegasus antes que vos, documentando lo que les
+habria gustado saber en su primer dia.
+
+Ahora sos parte de ese equipo. En algtin momento, quizas seas vos quien ayude a escribir la
+proxima version de este documento para darle la bienvenida a alguien nuevo.
+
+iBienvenido a Santo Pegasus Soluciones. El cédigo que escribas hoy importa.
+
+> Versién: 1.0.0 | Ultima Actualizacién: Junio 2026 | Préxima Revision: Diciembre 2026
+> Departamento Responsable: People & Engineering — Santo Pegasus Soluciones
+
+> Cla
+> Aprobado por: Direccién de Ingenieria y People Business Partner
+
+icacion: Interno — Confidenci:
+
+Este documento fue elaborado con base en la Guta Oficial de Ingenieria Back-end de Santo
+Pegasus Soluciones, Versién 2.4.0, Octubre 2025, Departamento de Ingenieria de Software /
+Chapter de Back-end,

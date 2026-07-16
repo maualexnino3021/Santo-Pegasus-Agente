@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: santo-pegasus-agente
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /api/health
+    envVars:
+      # Selecciona el proveedor del LLM: "anthropic" (por defecto) u "openai"
+      - key: LLM_PROVIDER
+        value: anthropic
+      # --- Anthropic (usado si LLM_PROVIDER=anthropic) ---
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-4-5
+      # --- OpenAI (usado si LLM_PROVIDER=openai) ---
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: PYTHON_VERSION
+        value: 3.11.9

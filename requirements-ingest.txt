@@ -1,0 +1,10 @@
+# Instala estas dependencias SOLO localmente cuando necesites regenerar
+# knowledge_base/*.txt a partir de nuevos PDF (scripts/extract_pdfs.py).
+# No se instalan en Render: el servicio web solo necesita requirements.txt.
+pypdf==4.3.1
+pdf2image==1.17.0
+pytesseract==0.3.13
+
+# También necesitas los binarios del sistema:
+#   macOS:   brew install poppler tesseract tesseract-lang
+#   Ubuntu:  sudo apt-get install poppler-utils tesseract-ocr tesseract-ocr-spa
