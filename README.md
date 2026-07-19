@@ -9,9 +9,11 @@ microservicios.
 
 Proyecto desarrollado para el **Challenge Alura Agente**, con despliegue en **Render**.
 
-🔗 **Demo desplegada:** `<https://santo-pegasus-agente.onrender.com/>`
-📸 **Captura del despliegue:** ver docs/screenshot-deploy.png
+🔗 **Demo desplegada:** https://santo-pegasus-agente.onrender.com/
 
+📸 **Captura del despliegue:**
+
+![Interacción con el agente Santo Pegasus](docs/screenshot-deploy.png)
 ---
 
 ## Índice
